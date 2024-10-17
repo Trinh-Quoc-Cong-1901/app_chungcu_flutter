@@ -1,0 +1,98 @@
+[
+    {
+        "id": 1,
+        "title": "TB phí QL, nước, xe máy, T3,4,5 tháng 7/2024",
+        "time": "05-08-2024 13:49:57",
+        "content": "Kính gửi Quý Cư Dân tòa nhà Eco Green City!\n\nBQL tòa nhà Eco Green xin gửi tới Quý cư dân Thông báo phí kỳ tháng 08/2024 (chi tiết theo file đính kèm).\n\nMọi thắc mắc Quý cư dân vui lòng liên hệ: Hotline BQL: 0888 965 885\n\nTrân trọng thông báo!",
+        "imageUrl": "assets/images/icon_person.png",
+        "timeAgo": "2 tháng",
+        "sender": "Ban quản lý",
+        "totalAmount": "1.251.265đ",
+        "status": "Chưa thanh toán",
+        "paymentDueDate": "19/07/2024",
+        "paymentPeriod": "07/2024",
+        "isPaid": "false",
+        "serviceFees": [
+            {
+                "name": "Phí dịch vụ",
+                "details": "Phí DV: 75.13m2 x 10,500 đ",
+                "amount": "788.865đ"
+            },
+            {
+                "name": "Phí nước",
+                "details": "(01/05/2024 - 31/05/2024)\nChỉ số cuối kỳ: 1063\nChỉ số đầu kỳ: 1045\nSố lượng tiêu thụ: 18 m3\nSố lượng x Đơn giá: 18 x 16,800đ = 302,400đ",
+                "amount": "302.400đ"
+            },
+            {
+                "name": "Phí xe",
+                "details": "Xe máy : 2 x 80,000 = 160,000 đ\nTổng xe máy: 160,000 đ",
+                "amount": "160.000đ"
+            }
+        ],
+        "serviceDebt": "0đ"
+    },
+    {
+        "id": 2,
+        "title": "TB phí QL, nước, xe máy, T3,4,5 tháng 6/2024",
+        "time": "05-06-2024 13:49:57",
+        "content": "Kính gửi Quý Cư Dân tòa nhà Eco Green City!\n\nBQL tòa nhà Eco Green xin gửi tới Quý cư dân Thông báo phí kỳ tháng 06/2024 (chi tiết theo file đính kèm).\n\nMọi thắc mắc Quý cư dân vui lòng liên hệ: Hotline BQL: 0888 965 885\n\nTrân trọng thông báo!",
+        "imageUrl": "assets/images/icon_person.png",
+        "timeAgo": "3 tháng",
+        "sender": "Ban quản lý",
+        "totalAmount": "1.251.265đ",
+        "status": "Thanh toán đủ",
+        "paymentDueDate": "15/06/2024",
+        "paymentPeriod": "06/2024",
+        "isPaid": "true",
+        "serviceFees": [
+            {
+                "name": "Phí dịch vụ",
+                "details": "Phí DV: 75.13m2 x 10,500 đ",
+                "amount": "788.865đ"
+            },
+            {
+                "name": "Phí nước",
+                "details": "(01/05/2024 - 31/05/2024)\nChỉ số cuối kỳ: 1045\nChỉ số đầu kỳ: 1027\nSố lượng tiêu thụ: 18 m3\nSố lượng x Đơn giá: 18 x 16,800đ = 302,400đ",
+                "amount": "302.400đ"
+            },
+            {
+                "name": "Phí xe",
+                "details": "Xe máy : 2 x 80,000 = 160,000 đ\nTổng xe máy: 160,000 đ",
+                "amount": "160.000đ"
+            }
+        ],
+        "serviceDebt": "0đ"
+    },
+    {
+        "id": 3,
+        "title": "TB phí QL, nước, xe máy, T3,4,5 tháng 7/2024",
+        "time": "05-08-2024 13:49:57",
+        "content": "Kính gửi Quý Cư Dân tòa nhà Eco Green City!\n\nBQL tòa nhà Eco Green xin gửi tới Quý cư dân Thông báo phí kỳ tháng 08/2024 (chi tiết theo file đính kèm).\n\nMọi thắc mắc Quý cư dân vui lòng liên hệ: Hotline BQL: 0888 965 885\n\nTrân trọng thông báo!",
+        "imageUrl": "assets/images/icon_person.png",
+        "timeAgo": "2 tháng",
+        "sender": "Ban quản lý",
+        "totalAmount": "1.251.265đ",
+        "status": "Chưa thanh toán",
+        "paymentDueDate": "19/07/2024",
+        "paymentPeriod": "07/2024",
+        "isPaid": "false",
+        "serviceFees": [
+            {
+                "name": "Phí dịch vụ",
+                "details": "Phí DV: 75.13m2 x 10,500 đ",
+                "amount": "788.865đ"
+            },
+            {
+                "name": "Phí nước",
+                "details": "(01/05/2024 - 31/05/2024)\nChỉ số cuối kỳ: 1063\nChỉ số đầu kỳ: 1045\nSố lượng tiêu thụ: 18 m3\nSố lượng x Đơn giá: 18 x 16,800đ = 302,400đ",
+                "amount": "302.400đ"
+            },
+            {
+                "name": "Phí xe",
+                "details": "Xe máy : 2 x 80,000 = 160,000 đ\nTổng xe máy: 160,000 đ",
+                "amount": "160.000đ"
+            }
+        ],
+        "serviceDebt": "0đ"
+    }
+]
