@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class CommunityBoardWidget extends StatelessWidget {
+  const CommunityBoardWidget({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -15,7 +17,7 @@ class CommunityBoardWidget extends StatelessWidget {
             height: 150, // Chiều cao của card
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10), // Bo góc hình ảnh
-              image: DecorationImage(
+              image: const DecorationImage(
                 image: AssetImage(
                     'assets/images/icon_facebook.png'), // Thay thế bằng đường dẫn ảnh nền của bạn
                 fit: BoxFit.cover, // Hình ảnh cover toàn bộ diện tích
@@ -28,7 +30,7 @@ class CommunityBoardWidget extends StatelessWidget {
             left: 0,
             right: 0,
             child: Container(
-              padding: EdgeInsets.symmetric(
+              padding: const EdgeInsets.symmetric(
                   vertical: 8.0,
                   horizontal: 12.0), // Khoảng cách padding trong Container
               decoration: BoxDecoration(
@@ -36,7 +38,7 @@ class CommunityBoardWidget extends StatelessWidget {
                 borderRadius:
                     BorderRadius.circular(5), // Bo góc nhẹ cho Container
               ),
-              child: Text(
+              child: const Text(
                 ' Thông báo quan trọng Thông báo quan trọng Thông báo quan trọng',
                 style: TextStyle(
                   color: Colors.green, // Màu trắng cho văn bản

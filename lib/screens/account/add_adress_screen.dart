@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 
 class AddAdressScreen extends StatefulWidget {
+  const AddAdressScreen({super.key});
+
   @override
+  // ignore: library_private_types_in_public_api
   _AddAdressScreenState createState() => _AddAdressScreenState();
 }
 
@@ -35,19 +38,19 @@ class _AddAdressScreenState extends State<AddAdressScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Thêm địa chỉ'),
+        title: const Text('Thêm địa chỉ'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: ListView(
           children: [
-            TextField(
+            const TextField(
               decoration: InputDecoration(
                 labelText: 'Tên',
                 hintText: 'Tên người nhận hàng',
               ),
             ),
-            TextField(
+            const TextField(
               decoration: InputDecoration(
                 labelText: 'Số điện thoại',
                 hintText: 'Điền số điện thoại',
@@ -69,7 +72,7 @@ class _AddAdressScreenState extends State<AddAdressScreen> {
                   selectedWard = null; // Xóa giá trị khi tỉnh thay đổi
                 });
               },
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'Tỉnh/Thành phố',
               ),
             ),
@@ -89,7 +92,7 @@ class _AddAdressScreenState extends State<AddAdressScreen> {
                   selectedWard = null; // Xóa giá trị khi quận thay đổi
                 });
               },
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'Quận/Huyện',
               ),
             ),
@@ -108,11 +111,11 @@ class _AddAdressScreenState extends State<AddAdressScreen> {
                   selectedWard = newValue;
                 });
               },
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'Phường/Xã',
               ),
             ),
-            TextField(
+            const TextField(
               decoration: InputDecoration(
                 labelText: 'Địa chỉ chi tiết',
                 hintText:
@@ -120,22 +123,22 @@ class _AddAdressScreenState extends State<AddAdressScreen> {
               ),
             ),
             SwitchListTile(
-              title: Text('Đặt làm địa chỉ mặc định'),
+              title: const Text('Đặt làm địa chỉ mặc định'),
               value: false,
               onChanged: (value) {
                 // Xử lý logic khi bật/tắt
               },
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
                 // Xử lý lưu địa chỉ
               },
-              child: Text('Hoàn thành'),
               style: ElevatedButton.styleFrom(
-                minimumSize:
-                    Size(double.infinity, 48), // Chiều rộng tối đa của nút
+                minimumSize: const Size(
+                    double.infinity, 48), // Chiều rộng tối đa của nút
               ),
+              child: const Text('Hoàn thành'),
             ),
           ],
         ),

@@ -42,9 +42,8 @@ class CustomButton extends StatelessWidget {
                   const BoxShadow(
                     // ignore: deprecated_member_use
 
-                    color:
-                        const Color(0x66000000), // Màu #00000040 với độ mờ 25%
-                    offset: const Offset(0, 4), // Vị trí bóng (0px, 4px)
+                    color: Color(0x66000000), // Màu #00000040 với độ mờ 25%
+                    offset: Offset(0, 4), // Vị trí bóng (0px, 4px)
                     blurRadius: 4, // Độ mờ của bóng
                     spreadRadius: 0, // Không có sự lan rộng của bóng
                   ),

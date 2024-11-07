@@ -1,354 +1,3 @@
-// // import 'package:dotted_border/dotted_border.dart';
-// // import 'package:flutter/material.dart';
-// // import 'package:image_picker/image_picker.dart'; // Thêm thư viện image_picker
-// // import 'dart:io'; // Để sử dụng File
-
-// // class NewRequestScreen extends StatefulWidget {
-// //   @override
-// //   _NewRequestScreenState createState() => _NewRequestScreenState();
-// // }
-
-// // class _NewRequestScreenState extends State<NewRequestScreen> {
-// //   final _formKey = GlobalKey<FormState>();
-// //   final ImagePicker _picker = ImagePicker();
-// //   XFile? _imageFile;
-// //   final TextEditingController _titleController = TextEditingController();
-// //   final TextEditingController _typeController = TextEditingController();
-// //   final TextEditingController _priorityController = TextEditingController();
-// //   final TextEditingController _contentController = TextEditingController();
-
-// //   Future<void> _pickImage() async {
-// //     final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-// //     setState(() {
-// //       _imageFile = image; // Cập nhật biến _imageFile
-// //     });
-// //   }
-
-// //   @override
-// //   Widget build(BuildContext context) {
-// //     return Scaffold(
-// //       appBar: AppBar(
-// //         title: Text('Tạo yêu cầu BQL'),
-// //       ),
-// //       body: Padding(
-// //         padding: const EdgeInsets.all(16.0),
-// //         child: Form(
-// //           key: _formKey,
-// //           child: Column(
-// //             crossAxisAlignment: CrossAxisAlignment.start,
-// //             children: [
-// //               TextFormField(
-// //                 controller: _titleController,
-// //                 decoration: InputDecoration(
-// //                   labelText: 'Tiêu đề *',
-// //                   border: UnderlineInputBorder(),
-// //                 ),
-// //                 validator: (value) {
-// //                   if (value == null || value.isEmpty) {
-// //                     return 'Vui lòng nhập tiêu đề';
-// //                   }
-// //                   return null;
-// //                 },
-// //               ),
-// //               SizedBox(height: 16.0),
-// //               TextFormField(
-// //                 controller: _typeController,
-// //                 decoration: InputDecoration(
-// //                   labelText: 'Loại phản ánh *',
-// //                   border: UnderlineInputBorder(),
-// //                 ),
-// //                 validator: (value) {
-// //                   if (value == null || value.isEmpty) {
-// //                     return 'Vui lòng chọn loại phản ánh';
-// //                   }
-// //                   return null;
-// //                 },
-// //               ),
-// //               SizedBox(height: 16.0),
-// //               TextFormField(
-// //                 controller: _priorityController,
-// //                 decoration: InputDecoration(
-// //                   labelText: 'Mức độ ưu tiên *',
-// //                   border: UnderlineInputBorder(),
-// //                 ),
-// //                 validator: (value) {
-// //                   if (value == null || value.isEmpty) {
-// //                     return 'Vui lòng chọn mức độ ưu tiên';
-// //                   }
-// //                   return null;
-// //                 },
-// //               ),
-// //               SizedBox(height: 16.0),
-// //               TextFormField(
-// //                 controller: _contentController,
-// //                 decoration: InputDecoration(
-// //                   labelText: 'Nội dung *',
-// //                   border: UnderlineInputBorder(),
-// //                 ),
-// //                 maxLines: 5,
-// //                 validator: (value) {
-// //                   if (value == null || value.isEmpty) {
-// //                     return 'Vui lòng nhập nội dung';
-// //                   }
-// //                   return null;
-// //                 },
-// //               ),
-// //               SizedBox(height: 16.0),
-// //               GestureDetector(
-// //                 onTap: _pickImage, // Khi nhấn vào, gọi hàm chọn ảnh
-// //                 child: DottedBorder(
-// //                   color: Colors.grey,
-// //                   strokeWidth: 1,
-// //                   dashPattern: [4, 4],
-// //                   child: Container(
-// //                     width: 100, // Để sử dụng toàn bộ chiều rộng
-// //                     height: 100,
-// //                     child: _imageFile == null
-// //                         ? Column(
-// //                             mainAxisAlignment: MainAxisAlignment.center,
-// //                             children: [
-// //                               Icon(Icons.image, size: 40, color: Colors.grey),
-// //                               SizedBox(height: 8.0),
-// //                               Text('Thêm ảnh',
-// //                                   style: TextStyle(color: Colors.grey)),
-// //                             ],
-// //                           )
-// //                         : Image.file(
-// //                             File(_imageFile!.path), // Hiển thị ảnh đã chọn
-// //                             fit: BoxFit.cover,
-// //                           ),
-// //                   ),
-// //                 ),
-// //               ),
-// //               Spacer(),
-// //               SizedBox(
-// //                 width: double.infinity,
-// //                 child: ElevatedButton(
-// //                   onPressed: () {
-// //                     if (_formKey.currentState!.validate()) {
-// //                       // Xử lý khi bấm tạo yêu cầu
-// //                       // Lấy dữ liệu từ các trường nhập liệu
-// //                       final requestData = {
-// //                         'title': _titleController.text,
-// //                         'type': _typeController.text,
-// //                         'priority': _priorityController.text,
-// //                         'content': _contentController.text,
-// //                         'image': _imageFile, // Thêm hình ảnh
-// //                       };
-
-// //                       // Quay lại màn hình RequestScreen và trả về dữ liệu
-// //                       Navigator.pop(context, requestData);
-// //                     }
-// //                   },
-// //                   child: Text('TẠO YÊU CẦU'),
-// //                   style: ElevatedButton.styleFrom(
-// //                     padding: EdgeInsets.all(16.0),
-// //                     textStyle: TextStyle(fontSize: 16),
-// //                   ),
-// //                 ),
-// //               ),
-// //             ],
-// //           ),
-// //         ),
-// //       ),
-// //     );
-// //   }
-// // }
-
-// import 'dart:convert';
-// import 'dart:io';
-// import 'package:dotted_border/dotted_border.dart';
-// import 'package:flutter/material.dart';
-// import 'package:http/http.dart' as http;
-// import 'package:image_picker/image_picker.dart';
-// import 'package:uuid/uuid.dart';
-
-// class NewRequestScreen extends StatefulWidget {
-//   @override
-//   _NewRequestScreenState createState() => _NewRequestScreenState();
-// }
-
-// class _NewRequestScreenState extends State<NewRequestScreen> {
-//   final _formKey = GlobalKey<FormState>();
-//   final ImagePicker _picker = ImagePicker();
-//   XFile? _imageFile;
-//   final TextEditingController _titleController = TextEditingController();
-//   final TextEditingController _typeController = TextEditingController();
-//   final TextEditingController _priorityController = TextEditingController();
-//   final TextEditingController _contentController = TextEditingController();
-
-//   Future<void> _pickImage() async {
-//     final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-//     setState(() {
-//       _imageFile = image; // Cập nhật biến _imageFile
-//     });
-//   }
-
-//   Future<void> _submitForm() async {
-//     if (_formKey.currentState!.validate()) {
-//       // Xử lý khi bấm tạo yêu cầu
-//       // Lấy dữ liệu từ các trường nhập liệu
-//       final requestId = Uuid().v4();
-//       final requestData = {
-//         'requestId': requestId,
-//         'title': _titleController.text,
-//         'feedbackType': _typeController.text,
-//         'priority': _priorityController.text,
-//         'content': _contentController.text,
-//         'image': _imageFile
-//       };
-//       print(jsonEncode(
-//           requestData)); // Kiểm tra xem dữ liệu có đúng định dạng không
-
-//       // Chuẩn bị URL API
-//       // final String apiUrl = 'http://localhost:3000/feedbacks';
-
-//       try {
-//         // Tạo yêu cầu POST với body là JSON
-//         final response = await http.post(
-//           Uri.parse('http://localhost:3000/api/feedbacks'),
-//           headers: {"Content-Type": "application/json"},
-//           body: jsonEncode(requestData),
-//         );
-
-//         if (response.statusCode == 201) {
-//           ScaffoldMessenger.of(context).showSnackBar(
-//             SnackBar(content: Text('Tạo yêu cầu thành công!')),
-//           );
-//           Navigator.pop(context);
-//         } else {
-//           print('Response status: ${response.statusCode}');
-//           print(
-//               'Response body: ${response.body}'); // Kiểm tra nội dung phản hồi từ server
-//           ScaffoldMessenger.of(context).showSnackBar(
-//             SnackBar(content: Text('Có lỗi xảy ra: ${response.reasonPhrase}')),
-//           );
-//         }
-//       } catch (e) {
-//         // Bắt lỗi ngoại lệ khi gọi API
-//         ScaffoldMessenger.of(context).showSnackBar(
-//           SnackBar(content: Text('Không thể kết nối tới server: $e')),
-//         );
-//       }
-//     }
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: Text('Tạo yêu cầu BQL'),
-//       ),
-//       body: Padding(
-//         padding: const EdgeInsets.all(16.0),
-//         child: Form(
-//           key: _formKey,
-//           child: Column(
-//             crossAxisAlignment: CrossAxisAlignment.start,
-//             children: [
-//               TextFormField(
-//                 controller: _titleController,
-//                 decoration: InputDecoration(
-//                   labelText: 'Tiêu đề *',
-//                   border: UnderlineInputBorder(),
-//                 ),
-//                 validator: (value) {
-//                   if (value == null || value.isEmpty) {
-//                     return 'Vui lòng nhập tiêu đề';
-//                   }
-//                   return null;
-//                 },
-//               ),
-//               SizedBox(height: 16.0),
-//               TextFormField(
-//                 controller: _typeController,
-//                 decoration: InputDecoration(
-//                   labelText: 'Loại phản ánh *',
-//                   border: UnderlineInputBorder(),
-//                 ),
-//                 validator: (value) {
-//                   if (value == null || value.isEmpty) {
-//                     return 'Vui lòng chọn loại phản ánh';
-//                   }
-//                   return null;
-//                 },
-//               ),
-//               SizedBox(height: 16.0),
-//               TextFormField(
-//                 controller: _priorityController,
-//                 decoration: InputDecoration(
-//                   labelText: 'Mức độ ưu tiên *',
-//                   border: UnderlineInputBorder(),
-//                 ),
-//                 validator: (value) {
-//                   if (value == null || value.isEmpty) {
-//                     return 'Vui lòng chọn mức độ ưu tiên';
-//                   }
-//                   return null;
-//                 },
-//               ),
-//               SizedBox(height: 16.0),
-//               TextFormField(
-//                 controller: _contentController,
-//                 decoration: InputDecoration(
-//                   labelText: 'Nội dung *',
-//                   border: UnderlineInputBorder(),
-//                 ),
-//                 maxLines: 5,
-//                 validator: (value) {
-//                   if (value == null || value.isEmpty) {
-//                     return 'Vui lòng nhập nội dung';
-//                   }
-//                   return null;
-//                 },
-//               ),
-//               SizedBox(height: 16.0),
-//               GestureDetector(
-//                 onTap: _pickImage, // Khi nhấn vào, gọi hàm chọn ảnh
-//                 child: DottedBorder(
-//                   color: Colors.grey,
-//                   strokeWidth: 1,
-//                   dashPattern: [4, 4],
-//                   child: Container(
-//                     width: 100, // Để sử dụng toàn bộ chiều rộng
-//                     height: 100,
-//                     child: _imageFile == null
-//                         ? Column(
-//                             mainAxisAlignment: MainAxisAlignment.center,
-//                             children: [
-//                               Icon(Icons.image, size: 40, color: Colors.grey),
-//                               SizedBox(height: 8.0),
-//                               Text('Thêm ảnh',
-//                                   style: TextStyle(color: Colors.grey)),
-//                             ],
-//                           )
-//                         : Image.file(
-//                             File(_imageFile!.path), // Hiển thị ảnh đã chọn
-//                             fit: BoxFit.cover,
-//                           ),
-//                   ),
-//                 ),
-//               ),
-//               Spacer(),
-//               SizedBox(
-//                 width: double.infinity,
-//                 child: ElevatedButton(
-//                   onPressed: _submitForm, // Gọi hàm để gửi thông tin lên API
-//                   child: Text('TẠO YÊU CẦU'),
-//                   style: ElevatedButton.styleFrom(
-//                     padding: EdgeInsets.all(16.0),
-//                     textStyle: TextStyle(fontSize: 16),
-//                   ),
-//                 ),
-//               ),
-//             ],
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
-
 import 'dart:convert'; // Để mã hóa Base64
 import 'dart:io'; // Để làm việc với File
 import 'package:dotted_border/dotted_border.dart';
@@ -358,7 +7,10 @@ import 'package:image_picker/image_picker.dart';
 import 'package:uuid/uuid.dart';
 
 class NewRequestScreen extends StatefulWidget {
+  const NewRequestScreen({super.key});
+
   @override
+  // ignore: library_private_types_in_public_api
   _NewRequestScreenState createState() => _NewRequestScreenState();
 }
 
@@ -367,9 +19,13 @@ class _NewRequestScreenState extends State<NewRequestScreen> {
   final ImagePicker _picker = ImagePicker();
   XFile? _imageFile;
   final TextEditingController _titleController = TextEditingController();
-  final TextEditingController _typeController = TextEditingController();
-  final TextEditingController _priorityController = TextEditingController();
   final TextEditingController _contentController = TextEditingController();
+
+  // Các tùy chọn cho loại phản ánh và mức độ ưu tiên
+  String? _selectedType;
+  String? _selectedPriority;
+  final List<String> _types = ['Điện', 'Nước', 'Dịch vụ', 'Khác'];
+  final List<String> _priorities = ['Thấp', 'Trung bình', 'Cao'];
 
   // Hàm để chọn ảnh
   Future<void> _pickImage() async {
@@ -392,39 +48,45 @@ class _NewRequestScreenState extends State<NewRequestScreen> {
   Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
       // Lấy dữ liệu từ form
-      final requestId = Uuid().v4();
+      final requestId = const Uuid().v4();
       final String? base64Image = await _encodeImageToBase64(); // Mã hóa ảnh
 
       // Dữ liệu gửi lên server
       final requestData = {
         'requestId': requestId,
         'title': _titleController.text,
-        'feedbackType': _typeController.text,
-        'priority': _priorityController.text,
+        'feedbackType': _selectedType,
+        'priority': _selectedPriority,
         'content': _contentController.text,
         'image': base64Image, // Ảnh dưới dạng Base64 hoặc null nếu không có ảnh
       };
 
       try {
         final response = await http.post(
-          Uri.parse('http://localhost:3000/api/feedback/feedbacks'),
+          Uri.parse('http://localhost:3000/api/feedbacks'),
           headers: {"Content-Type": "application/json"},
           body: jsonEncode(requestData), // Mã hóa dữ liệu thành JSON
         );
 
         if (response.statusCode == 201) {
+          // ignore: use_build_context_synchronously
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Tạo yêu cầu thành công!')),
+            const SnackBar(content: Text('Tạo yêu cầu thành công!')),
           );
+          // ignore: use_build_context_synchronously
           Navigator.pop(context);
         } else {
+          // ignore: avoid_print
           print('Response status: ${response.statusCode}');
+          // ignore: avoid_print
           print('Response body: ${response.body}');
+          // ignore: use_build_context_synchronously
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Có lỗi xảy ra: ${response.reasonPhrase}')),
           );
         }
       } catch (e) {
+        // ignore: use_build_context_synchronously
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Không thể kết nối tới server: $e')),
         );
@@ -436,7 +98,7 @@ class _NewRequestScreenState extends State<NewRequestScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Tạo yêu cầu BQL'),
+        title: const Text('Tạo yêu cầu BQL'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -447,7 +109,7 @@ class _NewRequestScreenState extends State<NewRequestScreen> {
             children: [
               TextFormField(
                 controller: _titleController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Tiêu đề *',
                   border: UnderlineInputBorder(),
                 ),
@@ -458,13 +120,26 @@ class _NewRequestScreenState extends State<NewRequestScreen> {
                   return null;
                 },
               ),
-              SizedBox(height: 16.0),
-              TextFormField(
-                controller: _typeController,
-                decoration: InputDecoration(
+              const SizedBox(height: 16.0),
+
+              // DropdownButton cho loại phản ánh
+              DropdownButtonFormField<String>(
+                value: _selectedType,
+                items: _types.map((type) {
+                  return DropdownMenuItem(
+                    value: type,
+                    child: Text(type),
+                  );
+                }).toList(),
+                decoration: const InputDecoration(
                   labelText: 'Loại phản ánh *',
                   border: UnderlineInputBorder(),
                 ),
+                onChanged: (value) {
+                  setState(() {
+                    _selectedType = value;
+                  });
+                },
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Vui lòng chọn loại phản ánh';
@@ -472,13 +147,26 @@ class _NewRequestScreenState extends State<NewRequestScreen> {
                   return null;
                 },
               ),
-              SizedBox(height: 16.0),
-              TextFormField(
-                controller: _priorityController,
-                decoration: InputDecoration(
+              const SizedBox(height: 16.0),
+
+              // DropdownButton cho mức độ ưu tiên
+              DropdownButtonFormField<String>(
+                value: _selectedPriority,
+                items: _priorities.map((priority) {
+                  return DropdownMenuItem(
+                    value: priority,
+                    child: Text(priority),
+                  );
+                }).toList(),
+                decoration: const InputDecoration(
                   labelText: 'Mức độ ưu tiên *',
                   border: UnderlineInputBorder(),
                 ),
+                onChanged: (value) {
+                  setState(() {
+                    _selectedPriority = value;
+                  });
+                },
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Vui lòng chọn mức độ ưu tiên';
@@ -486,10 +174,11 @@ class _NewRequestScreenState extends State<NewRequestScreen> {
                   return null;
                 },
               ),
-              SizedBox(height: 16.0),
+              const SizedBox(height: 16.0),
+
               TextFormField(
                 controller: _contentController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Nội dung *',
                   border: UnderlineInputBorder(),
                 ),
@@ -501,18 +190,19 @@ class _NewRequestScreenState extends State<NewRequestScreen> {
                   return null;
                 },
               ),
-              SizedBox(height: 16.0),
+              const SizedBox(height: 16.0),
+
               GestureDetector(
                 onTap: _pickImage,
                 child: DottedBorder(
                   color: Colors.grey,
                   strokeWidth: 1,
-                  dashPattern: [4, 4],
-                  child: Container(
+                  dashPattern: const [4, 4],
+                  child: SizedBox(
                     width: 100,
                     height: 100,
                     child: _imageFile == null
-                        ? Column(
+                        ? const Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Icon(Icons.image, size: 40, color: Colors.grey),
@@ -528,16 +218,16 @@ class _NewRequestScreenState extends State<NewRequestScreen> {
                   ),
                 ),
               ),
-              Spacer(),
+              const Spacer(),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: _submitForm,
-                  child: Text('TẠO YÊU CẦU'),
                   style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.all(16.0),
-                    textStyle: TextStyle(fontSize: 16),
+                    padding: const EdgeInsets.all(16.0),
+                    textStyle: const TextStyle(fontSize: 16),
                   ),
+                  child: const Text('TẠO YÊU CẦU'),
                 ),
               ),
             ],

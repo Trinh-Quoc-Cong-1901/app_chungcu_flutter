@@ -1,28 +1,3 @@
-// import 'package:flutter/material.dart';
-
-// class NotificationCardWidget extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return Card(
-//       margin: const EdgeInsets.symmetric(horizontal: 16.0),
-//       child: ListTile(
-//         leading: CircleAvatar(
-//           backgroundImage: NetworkImage(
-//               'https://via.placeholder.com/150'), // Thay bằng hình ảnh thực tế
-//         ),
-//         title: Text('ĐÍNH CHÍNH THÔNG TIN NGÂN HÀNG THỤ HƯỞ...'),
-//         subtitle: Row(
-//           children: [
-//             Icon(Icons.access_time, size: 12),
-//             SizedBox(width: 4),
-//             Text('2 tháng trước'),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
-
 import 'package:flutter/material.dart';
 
 class NotificationCardWidget extends StatelessWidget {
@@ -30,7 +5,8 @@ class NotificationCardWidget extends StatelessWidget {
   final String title;
   final String timeAgo;
 
-  NotificationCardWidget({
+  const NotificationCardWidget({
+    super.key,
     required this.imageUrl,
     required this.title,
     required this.timeAgo,
@@ -52,8 +28,8 @@ class NotificationCardWidget extends StatelessWidget {
         ),
         subtitle: Row(
           children: [
-            Icon(Icons.access_time, size: 12),
-            SizedBox(width: 4),
+            const Icon(Icons.access_time, size: 12),
+            const SizedBox(width: 4),
             Text(timeAgo),
           ],
         ),

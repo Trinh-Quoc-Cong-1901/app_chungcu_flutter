@@ -56,7 +56,7 @@ class _CustomTextField2State extends State<CustomTextField2> {
     final screenHeight = MediaQuery.of(context).size.height;
     final heightRatio = screenHeight / 706;
     final widthRatio = screenWidth / 340;
-    return Container(
+    return SizedBox(
       width: widget.width, // Sử dụng width từ widget
       height: widget.height, // Sử dụng height từ widget
       child: TextField(
@@ -68,13 +68,14 @@ class _CustomTextField2State extends State<CustomTextField2> {
           filled: true,
           fillColor: AppColors.backgroundTextColor,
           labelText: widget.labelText,
-          labelStyle: TextStyle(
+          labelStyle: const TextStyle(
             color: AppColors.hintTextColor, // Đặt màu cho labelText
             fontSize: 18, // Có thể giữ cố định kích thước chữ
           ),
           hintText: widget.hintText,
           hintStyle: TextStyle(
             color:
+                // ignore: deprecated_member_use
                 AppColors.blackColor.withOpacity(0.35), // Đặt màu cho labelText
             fontSize: 21 * heightRatio, // Có thể giữ cố định kích thước chữ
           ),

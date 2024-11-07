@@ -8,7 +8,6 @@ import 'package:ecogreen_city/screens/chat_admin/chat_admin_screen.dart';
 import 'package:ecogreen_city/screens/community/community_screen.dart';
 import 'package:ecogreen_city/screens/family/family_screen.dart';
 import 'package:ecogreen_city/screens/home/components/bill_card.dart';
-// import 'package:ecogreen_city/screens/home/components/bill_card.dart';
 import 'package:ecogreen_city/screens/home/components/business_card.dart';
 import 'package:ecogreen_city/screens/home/components/community_board.dart';
 import 'package:ecogreen_city/screens/home/components/icon_button_with_badge.dart';
@@ -20,9 +19,11 @@ import 'package:ecogreen_city/screens/notification/notification_screen.dart';
 import 'package:ecogreen_city/screens/request/request_screen.dart';
 import 'package:ecogreen_city/screens/utilities/utilities_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
 
 class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
@@ -49,21 +50,23 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget getScreenForIndex(int index) {
     switch (index) {
       case 0:
-        return HomeScreen(); // Trang chủ của tôi
+        return const HomeScreen(); // Trang chủ của tôi
       case 1:
         return UtilitiesScreen(); // Tiện ích
       case 2:
         return NotificationListScreen(); // Thông báo
       case 3:
-        return AccountScreen(); // Thông báo
+        return const AccountScreen(); // Thông báo
 
       default:
-        return HomeScreen(); // Tài khoản
+        return const HomeScreen(); // Tài khoản
     }
   }
 
   List<dynamic> notifications = [];
   List<dynamic> bills = [];
+  List<dynamic> unpaidBills = [];
+  List<dynamic> paidBills = [];
 
   @override
   void initState() {
@@ -74,7 +77,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   String _getTotalAmount() {
     double total = 0;
-    for (var bill in bills) {
+    for (var bill in unpaidBills) {
       String amountStr = bill['totalAmount'].replaceAll(RegExp(r'[^0-9]'), '');
       total += double.parse(amountStr);
     }
@@ -82,24 +85,44 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _loadNotifications() async {
-    // Đọc tệp JSON từ assets
-    final String response =
-        await rootBundle.loadString('assets/json/notifications.json');
-    final List<dynamic> data = jsonDecode(response);
-    setState(() {
-      notifications = data;
-    });
+    try {
+      final response =
+          await http.get(Uri.parse('http://localhost:3000/api/notifications/'));
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        setState(() {
+          notifications = data;
+        });
+      } else {
+        throw Exception('Failed to load notifications');
+      }
+    } catch (e) {
+      // ignore: avoid_print
+      print('Error fetching notifications: $e');
+      // ignore: use_build_context_synchronously
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Không thể tải thông báo.')),
+      );
+    }
   }
 
   Future<void> _loadBills() async {
-    // Đọc tệp JSON từ assets
-    final String response =
-        await rootBundle.loadString('assets/json/bill_details.json');
-    final List<dynamic> data = jsonDecode(response);
-    setState(() {
-      bills =
-          data.where((bill) => bill['status'] == "Chưa thanh toán").toList();
-    });
+    final response =
+        await http.get(Uri.parse('http://localhost:3000/api/invoices'));
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = jsonDecode(response.body);
+      setState(() {
+        unpaidBills =
+            data.where((bill) => bill['status'] == "Chưa thanh toán").toList();
+        paidBills =
+            data.where((bill) => bill['status'] == "Đã thanh toán").toList();
+      });
+    } else {
+      // Xử lý lỗi nếu cần
+      throw Exception('Failed to load invoices');
+    }
   }
 
   @override
@@ -108,7 +131,7 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         backgroundColor: Colors.green,
         elevation: 0,
-        title: Row(
+        title: const Row(
           children: [
             CircleAvatar(
               radius: 20, // Kích thước avatar
@@ -137,13 +160,13 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.home, color: Colors.black),
+            icon: const Icon(Icons.home, color: Colors.black),
             onPressed: () {
               // Reload lại trang hiện tại
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (BuildContext context) => HomeScreen(),
+                  builder: (BuildContext context) => const HomeScreen(),
                 ),
               );
             },
@@ -163,31 +186,36 @@ class _HomeScreenState extends State<HomeScreen> {
                   IconButtonWidget(
                     title: 'Hóa đơn',
                     icon: Icons.receipt_long,
-                    color: Colors.orange,
-                    destination: BillScreen(), // Thay thế bằng màn hình Hóa đơn
+                    color: Colors.green,
+                    badgeCount:
+                        unpaidBills.length, // Hiển thị 3 thông báo chưa đọc
+                    destination:
+                        const BillScreen(), // Thay thế bằng màn hình Hóa đơn
                   ),
                   IconButtonWidget(
                     title: 'Yêu cầu',
                     icon: Icons.assignment,
                     color: Colors.green,
+                    badgeCount: 3, // Hiển thị 3 thông báo chưa đọc
                     destination:
                         RequestScreen(), // Thay thế bằng màn hình Yêu cầu
                   ),
-                  IconButtonWidget(
+                  const IconButtonWidget(
                     title: 'Chat BQL',
                     icon: Icons.chat,
                     color: Colors.green,
+                    badgeCount: 3, // Hiển thị 3 thông báo chưa đọc
                     destination:
                         ChatAdminScreen(), // Thay thế bằng màn hình Chat BQL
                   ),
-                  IconButtonWidget(
+                  const IconButtonWidget(
                     title: 'Cộng đồng',
                     icon: Icons.groups,
                     color: Colors.green,
                     destination:
                         CommunityScreen(), // Thay thế bằng màn hình Cộng đồng
                   ),
-                  IconButtonWidget(
+                  const IconButtonWidget(
                     title: 'Gia đình',
                     icon: Icons.family_restroom,
                     color: Colors.green,
@@ -218,10 +246,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     );
                   },
                 ),
-                SizedBox(height: 16.0),
+                const SizedBox(height: 16.0),
                 // Kiểm tra nếu chưa load được thông báo
                 notifications.isEmpty
-                    ? Center(child: CircularProgressIndicator())
+                    ? const Center(child: CircularProgressIndicator())
                     : CarouselSlider(
                         options: CarouselOptions(
                           height: 120.0, // Chiều cao của slider
@@ -265,12 +293,13 @@ class _HomeScreenState extends State<HomeScreen> {
                   onViewAll: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => BillScreen()),
+                      MaterialPageRoute(
+                          builder: (context) => const BillScreen()),
                     );
                   },
                 ),
-                bills.isEmpty
-                    ? Center(child: CircularProgressIndicator())
+                unpaidBills.isEmpty
+                    ? const Center(child: CircularProgressIndicator())
                     : CarouselSlider(
                         options: CarouselOptions(
                           height: 170, // Chiều cao của slider
@@ -280,7 +309,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           enableInfiniteScroll: false, // Vô hạn scroll
                           viewportFraction: 0.9, // Điều chỉnh kích thước item
                         ),
-                        items: bills.map((bill) {
+                        items: unpaidBills.map((bill) {
                           return GestureDetector(
                             onTap: () {
                               // Điều hướng đến màn hình chi tiết hóa đơn
@@ -307,14 +336,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
+                      const Text(
                         'Tổng tiền:',
                         style: TextStyle(
                             fontSize: 16, fontWeight: FontWeight.bold),
                       ),
                       Text(
-                        bills.isNotEmpty ? _getTotalAmount() : '0đ',
-                        style: TextStyle(
+                        unpaidBills.isNotEmpty ? _getTotalAmount() : '0đ',
+                        style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                           color: Colors.green,
@@ -328,12 +357,12 @@ class _HomeScreenState extends State<HomeScreen> {
                             context,
                             MaterialPageRoute(
                               builder: (context) => BillPaymentScreen(
-                                unpaidBills: bills,
+                                unpaidBills: unpaidBills,
                               ),
                             ),
                           );
                         },
-                        child: Text('Thanh toán'),
+                        child: const Text('Thanh toán'),
                       ),
                     ],
                   ),
@@ -355,7 +384,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   items: List.generate(
                     5,
-                    (index) => CommunityBoardWidget(),
+                    (index) => const CommunityBoardWidget(),
                   ), // Thay thế bằng item của bạn
                 ),
               ],
@@ -373,7 +402,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   items: List.generate(
                     5,
-                    (index) => BusinessCardWidget(
+                    (index) => const BusinessCardWidget(
                       title: 'Máy lọc nước Kasama',
                       subtitle: 'Chuyên Giao Lọc Nước',
                       address: 'Số 164 Nam Đường Q. Long Biên, TP Hà Nội',
@@ -394,14 +423,8 @@ class _HomeScreenState extends State<HomeScreen> {
         type: BottomNavigationBarType.fixed,
         currentIndex: _selectedIndex, // Chỉ số hiện tại của màn hình được chọn
         onTap: _onItemTapped, // Gọi hàm khi người dùng nhấn vào tab
-        // backgroundColor:
-        //     Colors.green, // Màu nền chung cho toàn bộ BottomNavigationBar
-        // selectedItemColor: Colors.white, // Màu cho item được chọn
-        // unselectedItemColor: Colors.black54, // Màu cho các item không được chọn
-        // type:
-        //     BottomNavigationBarType.fixed, // Đảm bảo các item hiển thị đều nhau
 
-        items: [
+        items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: 'Nhà của tôi',

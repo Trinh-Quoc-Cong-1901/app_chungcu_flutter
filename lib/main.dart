@@ -4,7 +4,6 @@ import 'package:ecogreen_city/screens/splash.dart/splash_screen.dart';
 import 'package:flutter/material.dart';
 
 void main() {
-  
   // debugPaintSizeEnabled = true;
   runApp(const MyApp());
 }
@@ -19,7 +18,7 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (context) => const SplashScreen(), // Màn hình chính
-        '/home': (context) => HomeScreen(), // Màn hình chính
+        '/home': (context) => const HomeScreen(), // Màn hình chính
         // '/movieDetail': (context) =>
         //     const MovieDetailScreen(), // Màn hình chi tiết phim
         // '/movie': (context) => const MovieScreen(), // Màn hình chi tiết phim

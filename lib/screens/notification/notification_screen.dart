@@ -1,53 +1,25 @@
+// ignore_for_file: avoid_print
+
 import 'dart:convert'; // Để sử dụng jsonDecode
 import 'package:ecogreen_city/screens/account/account_screen.dart';
 import 'package:ecogreen_city/screens/home/home_screen.dart';
 import 'package:ecogreen_city/screens/notification/component/notification_item_widget.dart';
 import 'package:ecogreen_city/screens/utilities/utilities_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'
-    show rootBundle; // Để load tệp JSON từ assets
+import 'package:http/http.dart' as http;
+
 import 'notification_detail_screen.dart';
 
 class NotificationListScreen extends StatefulWidget {
+  const NotificationListScreen({super.key});
+
   @override
+  // ignore: library_private_types_in_public_api
   _NotificationListScreenState createState() => _NotificationListScreenState();
 }
 
 class _NotificationListScreenState extends State<NotificationListScreen> {
   var _selectedIndex = 0;
-
-  void _onItemTapped(int index) {
-    // Xử lý chuyển đổi các tab trong BottomNavigationBar
-    setState(() {
-      _selectedIndex = index;
-      // Ở đây bạn có thể điều hướng tới các trang khác, ví dụ như Trang chủ, Tiện ích, Thông báo
-      if (_selectedIndex != 4) {
-        // Điều hướng tới các trang khác ngoài Tài khoản
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => getScreenForIndex(index)),
-        );
-      }
-    });
-  }
-
-  // Hàm này trả về màn hình phù hợp với chỉ số được chọn
-  Widget getScreenForIndex(int index) {
-    switch (index) {
-      case 0:
-        return HomeScreen(); // Trang chủ của tôi
-      case 1:
-        return UtilitiesScreen(); // Tiện ích
-      case 2:
-        return NotificationListScreen(); // Thông báo
-      case 3:
-        return AccountScreen(); // Thông báo
-
-      default:
-        return NotificationListScreen(); // Tài khoản
-    }
-  }
-
   List<dynamic> notifications = [];
 
   @override
@@ -57,23 +29,62 @@ class _NotificationListScreenState extends State<NotificationListScreen> {
   }
 
   Future<void> _loadNotifications() async {
-    // Đọc tệp JSON từ assets
-    final String response =
-        await rootBundle.loadString('assets/json/notifications.json');
-    final List<dynamic> data = jsonDecode(response);
+    try {
+      final response =
+          await http.get(Uri.parse('http://localhost:3000/api/notifications/'));
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        setState(() {
+          notifications = data;
+        });
+      } else {
+        throw Exception('Failed to load notifications');
+      }
+    } catch (e) {
+      print('Error fetching notifications: $e');
+      // ignore: use_build_context_synchronously
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Không thể tải thông báo.')),
+      );
+    }
+  }
+
+  void _onItemTapped(int index) {
     setState(() {
-      notifications = data;
+      _selectedIndex = index;
+      if (_selectedIndex != 4) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => getScreenForIndex(index)),
+        );
+      }
     });
+  }
+
+  Widget getScreenForIndex(int index) {
+    switch (index) {
+      case 0:
+        return const HomeScreen();
+      case 1:
+        return UtilitiesScreen();
+      case 2:
+        return const NotificationListScreen();
+      case 3:
+        return const AccountScreen();
+      default:
+        return const NotificationListScreen();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Thông báo mới'),
+        title: const Text('Thông báo mới'),
       ),
       body: notifications.isEmpty
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : ListView.builder(
               padding: const EdgeInsets.all(16.0),
               itemCount: notifications.length,
@@ -106,9 +117,9 @@ class _NotificationListScreenState extends State<NotificationListScreen> {
         selectedItemColor: Colors.white,
         unselectedItemColor: Colors.black54,
         type: BottomNavigationBarType.fixed,
-        currentIndex: _selectedIndex, // Chỉ số hiện tại của màn hình được chọn
-        onTap: _onItemTapped, // Gọi hàm khi người dùng nhấn vào tab
-        items: [
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
+        items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: 'Nhà của tôi',

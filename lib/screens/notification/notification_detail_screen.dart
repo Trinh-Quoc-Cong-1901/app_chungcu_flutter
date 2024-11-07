@@ -5,7 +5,8 @@ class NotificationDetailScreen extends StatelessWidget {
   final String time;
   final String content;
 
-  NotificationDetailScreen({
+  const NotificationDetailScreen({
+    super.key,
     required this.title,
     required this.time,
     required this.content,
@@ -30,36 +31,36 @@ class NotificationDetailScreen extends StatelessWidget {
                 width: double.infinity,
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
 
             // Tiêu đề thông báo
             Text(
               title,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
 
             // Thông tin thời gian và nơi gửi
             Row(
               children: [
-                Icon(Icons.location_on, color: Colors.grey, size: 20),
-                SizedBox(width: 5),
-                Text('Eco Green City'),
-                SizedBox(width: 20),
-                Icon(Icons.access_time, color: Colors.grey, size: 20),
-                SizedBox(width: 5),
+                const Icon(Icons.location_on, color: Colors.grey, size: 20),
+                const SizedBox(width: 5),
+                const Text('Eco Green City'),
+                const SizedBox(width: 20),
+                const Icon(Icons.access_time, color: Colors.grey, size: 20),
+                const SizedBox(width: 5),
                 Text(time),
               ],
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
 
             // Nội dung thông báo
             Text(
               content,
-              style: TextStyle(
+              style:const  TextStyle(
                 fontSize: 16,
                 height: 1.5, // Độ cao dòng để cải thiện khả năng đọc
               ),

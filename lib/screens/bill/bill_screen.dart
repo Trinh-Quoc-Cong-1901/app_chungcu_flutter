@@ -3,10 +3,14 @@ import 'dart:convert';
 import 'package:ecogreen_city/screens/bill/bill_payment_screen.dart';
 import 'package:ecogreen_city/screens/home/components/bill_card.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+
+import 'package:http/http.dart' as http;
 
 class BillScreen extends StatefulWidget {
+  const BillScreen({super.key});
+
   @override
+  // ignore: library_private_types_in_public_api
   _BillScreenState createState() => _BillScreenState();
 }
 
@@ -30,26 +34,31 @@ class _BillScreenState extends State<BillScreen> {
   }
 
   Future<void> _loadBills() async {
-    // Đọc tệp JSON từ assets
-    final String response =
-        await rootBundle.loadString('assets/json/bill_details.json');
-    final List<dynamic> data = jsonDecode(response);
-    setState(() {
-      unpaidBills =
-          data.where((bill) => bill['status'] == "Chưa thanh toán").toList();
-      paidBills =
-          data.where((bill) => bill['status'] == "Thanh toán đủ").toList();
-    });
+    final response =
+        await http.get(Uri.parse('http://localhost:3000/api/invoices'));
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = jsonDecode(response.body);
+      setState(() {
+        unpaidBills =
+            data.where((bill) => bill['status'] == "Chưa thanh toán").toList();
+        paidBills =
+            data.where((bill) => bill['status'] == "Đã thanh toán").toList();
+      });
+    } else {
+      // Xử lý lỗi nếu cần
+      throw Exception('Failed to load invoices');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Danh sách hóa đơn'),
+        title: const Text('Danh sách hóa đơn'),
       ),
       body: unpaidBills.isEmpty && paidBills.isEmpty
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : ListView(
               children: [
                 if (unpaidBills.isNotEmpty) ...[
@@ -57,8 +66,8 @@ class _BillScreenState extends State<BillScreen> {
                     padding: const EdgeInsets.all(16.0),
                     child: Text(
                       'Hóa đơn chưa thanh toán (${unpaidBills.length})',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                   ),
                   for (var bill in unpaidBills)
@@ -74,14 +83,14 @@ class _BillScreenState extends State<BillScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
+                        const Text(
                           'Tổng tiền:',
                           style: TextStyle(
                               fontSize: 16, fontWeight: FontWeight.bold),
                         ),
                         Text(
                           unpaidBills.isNotEmpty ? _getTotalAmount() : '0đ',
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                             color: Colors.green,
@@ -99,7 +108,7 @@ class _BillScreenState extends State<BillScreen> {
                             );
                             // Xử lý thanh toán ở đây
                           },
-                          child: Text('Thanh toán'),
+                          child: const Text('Thanh toán'),
                         ),
                       ],
                     ),
@@ -110,8 +119,8 @@ class _BillScreenState extends State<BillScreen> {
                     padding: const EdgeInsets.all(16.0),
                     child: Text(
                       'Hóa đơn đã thanh toán (${paidBills.length})',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                   ),
                   for (var bill in paidBills)

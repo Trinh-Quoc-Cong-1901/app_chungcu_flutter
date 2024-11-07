@@ -7,12 +7,12 @@ class BusinessCardWidget extends StatelessWidget {
   final String imagePath;
 
   const BusinessCardWidget({
-    Key? key,
+    super.key,
     required this.title,
     required this.subtitle,
     required this.address,
     required this.imagePath,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +26,7 @@ class BusinessCardWidget extends StatelessWidget {
         children: [
           // Hình ảnh
           ClipRRect(
-            borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
             child: Image.asset(
               imagePath,
               width: double.infinity,
@@ -42,12 +42,12 @@ class BusinessCardWidget extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
                   subtitle,
                   style: TextStyle(
@@ -55,7 +55,7 @@ class BusinessCardWidget extends StatelessWidget {
                     color: Colors.grey[600],
                   ),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
                   address,
                   style: TextStyle(

@@ -1,62 +1,123 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 class FamilyScreen extends StatefulWidget {
+  const FamilyScreen({super.key});
+
   @override
+  // ignore: library_private_types_in_public_api
   _FamilyScreenState createState() => _FamilyScreenState();
 }
 
 class _FamilyScreenState extends State<FamilyScreen> {
-  List<Map<String, String>> members = [
-    {
-      'name': 'Trịnh Như Quỳnh (Bạn)',
-      'role': 'Chủ hộ',
-      'phone': '0971793348',
-      'image': 'assets/images/icon_facebook.png',
-    },
-    {
-      'name': 'Trịnh Quốc Công',
-      'role': 'Thành viên',
-      'phone': '0392921501',
-      'image': 'assets/images/icon_facebook.png',
-    },
-  ];
+  List<Map<String, dynamic>> members = []; // Danh sách thành viên từ API
 
-  void _addMember(String name, String role, String phone) {
-    setState(() {
-      members.add({
-        'name': name,
-        'role': role,
-        'phone': phone,
-        'image':
-            'assets/images/icon_facebook.png', // Đường dẫn ảnh của thành viên
+  @override
+  void initState() {
+    super.initState();
+    _fetchMembers(); // Gọi API để lấy danh sách thành viên
+  }
+
+  // Hàm để lấy danh sách thành viên từ API
+  Future<void> _fetchMembers() async {
+    final response = await http.get(
+        Uri.parse('http://localhost:3000/api/users/67107548c80418d6c3e38523'));
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      setState(() {
+        members = List<Map<String, dynamic>>.from(data['members']);
       });
-    });
+    } else {
+      // Xử lý khi không tải được dữ liệu
+      // ignore: use_build_context_synchronously
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Không thể tải danh sách thành viên')),
+      );
+    }
+  }
+
+// Hàm để xóa thành viên khỏi cơ sở dữ liệu
+  Future<void> _deleteMember(String memberId, int index) async {
+    final response = await http.delete(
+      Uri.parse(
+          'http://localhost:3000/api/members/67107548c80418d6c3e38523/$memberId'),
+      headers: {"Content-Type": "application/json"},
+    );
+
+    if (response.statusCode == 200) {
+      setState(() {
+        members
+            .removeAt(index); // Xóa thành viên khỏi danh sách trong giao diện
+      });
+      // ignore: use_build_context_synchronously
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Thành viên đã được xóa')),
+      );
+    } else {
+      // ignore: use_build_context_synchronously
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Không thể xóa thành viên')),
+      );
+    }
+  }
+
+  // Hàm để thêm thành viên mới
+  Future<void> _addMember(String name, int age, String relation) async {
+    final newMember = {
+      "name": name,
+      "age": age,
+      "relation": relation,
+    };
+
+    final response = await http.post(
+      Uri.parse('http://localhost:3000/api/members/67107548c80418d6c3e38523'),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode(newMember),
+    );
+
+    if (response.statusCode == 201) {
+      setState(() {
+        members.add(newMember); // Cập nhật giao diện với thành viên mới
+      });
+      // ignore: use_build_context_synchronously
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Thành viên đã được thêm thành công')),
+      );
+    } else {
+      // ignore: use_build_context_synchronously
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Không thể thêm thành viên')),
+      );
+    }
   }
 
   void _showAddMemberDialog() {
-    final _nameController = TextEditingController();
-    final _roleController = TextEditingController();
-    final _phoneController = TextEditingController();
+    final nameController = TextEditingController();
+    final ageController = TextEditingController();
+    final relationController = TextEditingController();
 
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Thêm thành viên mới'),
+          title: const Text('Thêm thành viên mới'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
-                controller: _nameController,
-                decoration: InputDecoration(labelText: 'Tên'),
+                controller: nameController,
+                decoration: const InputDecoration(labelText: 'Tên'),
               ),
               TextField(
-                controller: _roleController,
-                decoration: InputDecoration(labelText: 'Vai trò'),
+                controller: ageController,
+                decoration: const InputDecoration(labelText: 'Tuổi'),
+                keyboardType: TextInputType.number,
               ),
               TextField(
-                controller: _phoneController,
-                decoration: InputDecoration(labelText: 'Điện thoại'),
+                controller: relationController,
+                decoration: const InputDecoration(labelText: 'Quan hệ'),
               ),
             ],
           ),
@@ -65,18 +126,17 @@ class _FamilyScreenState extends State<FamilyScreen> {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('Hủy'),
+              child: const Text('Hủy'),
             ),
             TextButton(
               onPressed: () {
-                _addMember(
-                  _nameController.text,
-                  _roleController.text,
-                  _phoneController.text,
-                );
+                final name = nameController.text;
+                final age = int.tryParse(ageController.text) ?? 0;
+                final relation = relationController.text;
+                _addMember(name, age, relation);
                 Navigator.of(context).pop();
               },
-              child: Text('Thêm'),
+              child: const Text('Thêm'),
             ),
           ],
         );
@@ -88,80 +148,38 @@ class _FamilyScreenState extends State<FamilyScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Danh sách thành viên'),
+        title: const Text('Danh sách thành viên'),
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
+      body: members.isEmpty
+          ? const Center(child: Text('Chưa có thành viên'))
+          : ListView.builder(
               itemCount: members.length,
               itemBuilder: (context, index) {
                 final member = members[index];
                 return Card(
-                  margin: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  margin:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                   child: ListTile(
-                    leading: Image.asset(
-                      member['image']!,
-                      width: 50,
-                      height: 50,
-                    ),
-                    title: Text(member['name']!),
+                    leading: const Icon(Icons.person, size: 50),
+                    title: Text(member['name']),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          children: [
-                            Container(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: member['role'] == 'Chủ hộ'
-                                    ? Colors.red
-                                    : Colors.blue,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Text(
-                                member['role']!,
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 12),
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 5),
-                        Text('Điện thoại: ${member['phone']}'),
+                        Text('Tuổi: ${member['age']}'),
+                        Text('Quan hệ: ${member['relation']}'),
                       ],
                     ),
-                    trailing: member['role'] != 'Chủ hộ'
-                        ? IconButton(
-                            icon: Icon(Icons.close),
-                            onPressed: () {
-                              setState(() {
-                                members.removeAt(index);
-                              });
-                            },
-                          )
-                        : null,
+                    trailing: IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () => _deleteMember(member['_id'], index),
+                    ),
                   ),
                 );
               },
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: ElevatedButton.icon(
-              onPressed: _showAddMemberDialog, // Mở dialog để thêm thành viên
-              icon: Icon(Icons.person_add),
-              label: Text('THÊM THÀNH VIÊN'),
-              style: ElevatedButton.styleFrom(
-                minimumSize: Size(double.infinity, 50),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-              ),
-            ),
-          ),
-        ],
+      floatingActionButton: FloatingActionButton(
+        onPressed: _showAddMemberDialog, // Mở dialog để thêm thành viên
+        child: const Icon(Icons.person_add),
       ),
     );
   }

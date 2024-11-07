@@ -6,7 +6,7 @@ class NotificationItemWidget extends StatelessWidget {
   final String timeAgo;
   final String sender;
 
-  NotificationItemWidget({
+  const NotificationItemWidget({super.key, 
     required this.imageUrl,
     required this.title,
     required this.timeAgo,
@@ -24,30 +24,30 @@ class NotificationItemWidget extends StatelessWidget {
             backgroundImage: AssetImage(imageUrl),
             radius: 25,
           ),
-          SizedBox(width: 16),
+          const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   title,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
                   timeAgo,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 14,
                     color: Colors.grey,
                   ),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
                   sender,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 12,
                     color: Colors.grey,
                   ),

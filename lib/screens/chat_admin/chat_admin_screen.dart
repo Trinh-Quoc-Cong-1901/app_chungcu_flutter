@@ -1,39 +1,125 @@
+// ignore_for_file: avoid_print
+
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart'; // Đảm bảo bạn đã thêm package intl vào pubspec.yaml
-import 'package:image_picker/image_picker.dart'; // Thêm thư viện image_picker
+import 'package:intl/intl.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:http/http.dart' as http;
 
 class ChatAdminScreen extends StatefulWidget {
+  final String userId =
+      "67107548c80418d6c3e38523"; // User ID for the current user
+  final String adminId = "671076f0f8ce7d3257653147"; // Admin ID for the admin
+
+  const ChatAdminScreen({super.key});
+
   @override
+  // ignore: library_private_types_in_public_api
   _ChatAdminScreenState createState() => _ChatAdminScreenState();
 }
 
 class _ChatAdminScreenState extends State<ChatAdminScreen> {
-  final List<Map<String, dynamic>> messages = []; // Danh sách lưu trữ tin nhắn
+  final List<Map<String, dynamic>> messages = []; // List to store messages
   final TextEditingController _messageController = TextEditingController();
-  final ImagePicker _picker = ImagePicker(); // Khởi tạo ImagePicker
+  final ImagePicker _picker = ImagePicker();
+  Timer? _timer;
 
-  void _sendMessage(String content, {String? type}) {
-    if (content.isNotEmpty) {
-      final now = DateTime.now(); // Lấy thời gian hiện tại
-      final time = DateFormat('h:mm a').format(now); // Định dạng thời gian
-      final date = DateFormat('MMM d, yyyy').format(now); // Định dạng ngày
+  // Base URL for the API
+  final String baseUrl = 'http://localhost:3000/api/chats';
 
-      setState(() {
-        messages.add({
-          'content': content,
-          'type': type ?? 'text', // Hoặc 'image' nếu là tin nhắn hình ảnh
-          'time': time,
-          'date': date,
+  @override
+  void initState() {
+    super.initState();
+    _fetchMessages(); // Fetch initial messages when the screen loads
+
+    // Set up a timer to periodically fetch messages every 5 seconds
+    _timer = Timer.periodic(const Duration(seconds: 5), (timer) {
+      _fetchMessages();
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel(); // Cancel the timer when the widget is disposed
+    super.dispose();
+  }
+
+  // Function to fetch messages from the server
+  Future<void> _fetchMessages() async {
+    final url = Uri.parse('$baseUrl/${widget.userId}/${widget.adminId}');
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        setState(() {
+          messages.clear();
+          messages.addAll(data
+              .map((message) => {
+                    'content': message['message'],
+                    'type': 'text', // assuming messages are text-only
+                    'time': DateFormat('h:mm a')
+                        .format(DateTime.parse(message['timestamp'])),
+                    'date': DateFormat('MMM d, yyyy')
+                        .format(DateTime.parse(message['timestamp']))
+                  })
+              .toList());
         });
-        _messageController.clear(); // Xóa nội dung sau khi gửi
-      });
+      } else {
+        // ignore:
+        print('Failed to load messages');
+      }
+    } catch (e) {
+      // ignore:
+      print('Error fetching messages: $e');
     }
   }
 
+  // Function to send a message to the server
+  Future<void> _sendMessage(String content, {String? type}) async {
+    if (content.isNotEmpty) {
+      final url = Uri.parse(baseUrl);
+      final messageData = {
+        'sender': widget.userId,
+        'receiver': widget.adminId,
+        'message': content,
+      };
+
+      try {
+        final response = await http.post(
+          url,
+          headers: {"Content-Type": "application/json"},
+          body: jsonEncode(messageData),
+        );
+
+        if (response.statusCode == 201) {
+          final newMessage = jsonDecode(response.body);
+          final now = DateTime.now();
+          setState(() {
+            messages.add({
+              'content': newMessage['message'],
+              'type': type ?? 'text',
+              'time': DateFormat('h:mm a').format(now),
+              'date': DateFormat('MMM d, yyyy').format(now),
+            });
+          });
+          _messageController.clear();
+        } else {
+          // ignore:
+          print('Failed to send message');
+        }
+      } catch (e) {
+        print('Error sending message: $e');
+      }
+    }
+  }
+
+  // Function to pick an image and send it as a message
   Future<void> _pickImage() async {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
-      _sendMessage(pickedFile.path, type: 'image'); // Gửi tin nhắn hình ảnh
+      _sendMessage(pickedFile.path, type: 'image'); // send the image path
     }
   }
 
@@ -41,7 +127,7 @@ class _ChatAdminScreenState extends State<ChatAdminScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Chat Admin'),
+        title: const Text('Chat Admin'),
       ),
       body: Column(
         children: [
@@ -53,8 +139,8 @@ class _ChatAdminScreenState extends State<ChatAdminScreen> {
                 return Align(
                   alignment: Alignment.centerRight,
                   child: Container(
-                    padding: EdgeInsets.all(12),
-                    margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                    padding: const EdgeInsets.all(12),
+                    margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
                     constraints: BoxConstraints(
                       maxWidth: MediaQuery.of(context).size.width * 0.8,
                     ),
@@ -70,20 +156,19 @@ class _ChatAdminScreenState extends State<ChatAdminScreen> {
                         if (message['type'] == 'text')
                           Text(
                             message['content'],
-                            style: TextStyle(color: Colors.white),
+                            style: const TextStyle(color: Colors.white),
                           ),
                         if (message['type'] == 'image')
-                          Image.asset(
-                            message[
-                                'content'], // Dùng đường dẫn hình ảnh từ tin nhắn
+                          Image.file(
+                            File(message['content']),
                             width: 150,
                             height: 150,
                             fit: BoxFit.cover,
                           ),
-                        SizedBox(height: 5),
+                        const SizedBox(height: 5),
                         Text(
                           message['time'],
-                          style: TextStyle(fontSize: 12, color: Colors.black),
+                          style: const TextStyle(fontSize: 12, color: Colors.black),
                         ),
                       ],
                     ),
@@ -102,16 +187,15 @@ class _ChatAdminScreenState extends State<ChatAdminScreen> {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 contentPadding:
-                    EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                    const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                 prefixIcon: IconButton(
-                  icon: Icon(Icons.image), // Biểu tượng hình ảnh
-                  onPressed: _pickImage, // Gọi hàm chọn hình ảnh
+                  icon: const Icon(Icons.image),
+                  onPressed: _pickImage,
                 ),
                 suffixIcon: IconButton(
-                  icon: Icon(Icons.send), // Biểu tượng gửi tin nhắn
+                  icon: const Icon(Icons.send),
                   onPressed: () {
-                    _sendMessage(
-                        _messageController.text); // Gửi tin nhắn văn bản
+                    _sendMessage(_messageController.text);
                   },
                 ),
               ),

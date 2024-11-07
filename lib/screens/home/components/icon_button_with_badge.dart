@@ -5,12 +5,14 @@ class IconButtonWidget extends StatelessWidget {
   final IconData icon;
   final Color color;
   final Widget destination; // Widget đích
+  final int badgeCount; // Số lượng thông báo
 
-  IconButtonWidget({
+  const IconButtonWidget({super.key, 
     required this.title,
     required this.icon,
     required this.color,
-    required this.destination, // Nhận widget đích khi khởi tạo
+    required this.destination,
+    this.badgeCount = 0, // Mặc định là 0 nếu không có thông báo
   });
 
   @override
@@ -30,25 +32,25 @@ class IconButtonWidget extends StatelessWidget {
               },
               icon: Icon(icon, color: color),
             ),
-            if (title == 'Hóa đơn')
+            if (badgeCount > 0)
               Positioned(
                 top: 0,
                 right: 0,
                 child: Container(
-                  padding: EdgeInsets.all(2),
+                  padding: const EdgeInsets.all(2),
                   decoration: BoxDecoration(
                     color: Colors.red,
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Text(
-                    '1',
-                    style: TextStyle(color: Colors.white, fontSize: 12),
+                    '$badgeCount',
+                    style: const TextStyle(color: Colors.white, fontSize: 12),
                   ),
                 ),
               ),
           ],
         ),
-        Text(title, style: TextStyle(fontSize: 12)),
+        Text(title, style: const TextStyle(fontSize: 12)),
       ],
     );
   }

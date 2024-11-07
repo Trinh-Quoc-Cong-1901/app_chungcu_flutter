@@ -46,7 +46,7 @@ class CustomSocialButton extends StatelessWidget {
             SizedBox(width: screenWidth * 12 / 340),
             Text(
               text,
-              style: TextStyle(
+              style: const TextStyle(
                 fontFamily: 'Roboto',
                 fontSize: 14,
                 color: Color(0xFF000059),

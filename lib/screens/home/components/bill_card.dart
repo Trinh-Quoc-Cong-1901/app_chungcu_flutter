@@ -5,10 +5,10 @@ class BillCardWidget extends StatelessWidget {
   final String title;
   final String totalAmount;
   final String paymentPeriod;
-  final String? isPaid; // Biến kiểm tra trạng thái thanh toán
+  final bool? isPaid; // Biến kiểm tra trạng thái thanh toán
   final Map<String, dynamic> billData;
 
-  BillCardWidget({
+  const BillCardWidget({super.key, 
     required this.title,
     required this.totalAmount,
     required this.paymentPeriod,
@@ -32,9 +32,9 @@ class BillCardWidget extends StatelessWidget {
       },
       child: Card(
         // Đổi màu nền dựa vào trạng thái thanh toán
-        color: (isPaid == "true")
-            ? Colors.blue[100] // Màu nền cho hóa đơn đã thanh toán
-            : Colors.red[50], // Màu nền cho hóa đơn chưa thanh toán
+        color: (isPaid == true) ? Colors.blue[100] : Colors.red[50],
+
+        // Màu nền cho hóa đơn chưa thanh toán
         margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10), // Bo góc cho Card
@@ -47,7 +47,7 @@ class BillCardWidget extends StatelessWidget {
               // Nội dung
               Text(
                 title,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),
@@ -55,15 +55,15 @@ class BillCardWidget extends StatelessWidget {
                 overflow:
                     TextOverflow.ellipsis, // Thêm dấu ba chấm khi vượt quá dòng
               ),
-              SizedBox(height: 4), // Khoảng cách giữa tiêu đề và chi tiết
-              Text(
+              const SizedBox(height: 4), // Khoảng cách giữa tiêu đề và chi tiết
+              const Text(
                 'Vui lòng kiểm tra chi tiết hóa đơn',
                 style: TextStyle(
                   fontSize: 14,
                   color: Colors.black54,
                 ),
               ),
-              SizedBox(height: 8), // Khoảng cách giữa văn bản và kỳ tháng
+              const SizedBox(height: 8), // Khoảng cách giữa văn bản và kỳ tháng
 
               // Kỳ thanh toán và giá tiền
               Row(
@@ -71,15 +71,15 @@ class BillCardWidget extends StatelessWidget {
                 children: [
                   Text(
                     'Kỳ $paymentPeriod',
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 14,
                       color: Colors.grey,
                     ),
                   ),
-                  Spacer(),
+                  const Spacer(),
                   Text(
                     totalAmount,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                       color: Colors.green, // Màu của giá tiền

@@ -159,13 +159,15 @@ class _SignInScreenState extends State<SignInScreen> {
                                     Navigator.of(context)
                                         .pop(); // Đóng dialog trước
                                     // Sử dụng Future.delayed để đợi việc đóng dialog hoàn tất
-                                    Future.delayed(Duration(milliseconds: 100),
-                                        () {
+                                    Future.delayed(
+                                        const Duration(milliseconds: 100), () {
                                       // Chuyển sang màn hình Home
                                       Navigator.pushReplacement(
+                                        // ignore: use_build_context_synchronously
                                         context,
                                         MaterialPageRoute(
-                                            builder: (context) => HomeScreen()),
+                                            builder: (context) =>
+                                                const HomeScreen()),
                                       );
                                     });
                                   },

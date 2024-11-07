@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:ecogreen_city/components/app_colors/app_colors.dart';
 import 'package:ecogreen_city/components/app_style/app_style.dart';
 import 'package:ecogreen_city/screens/home/home_screen.dart';
+import 'package:ecogreen_city/screens/sign/sign_screen.dart';
 
 import 'package:flutter/material.dart';
 
@@ -19,12 +20,13 @@ class _SplashScreenState extends State<SplashScreen> {
     super.initState();
 
     // Chuyển sang màn hình chính sau 2 giây
-    Timer(const Duration(seconds: 2), () {
+    Timer(const Duration(seconds: 1), () {
       // sử dụng pushReplacement để bỏ trang hiện tại ra khoải stack vì thế sẽ không quay lại được.
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-            builder: (context) => HomeScreen()), // Chuyển đến màn hình HomePage
+            builder: (context) =>
+                const SignInScreen()), // Chuyển đến màn hình HomePage
       );
     });
   }
