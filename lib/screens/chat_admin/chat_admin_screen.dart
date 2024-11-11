@@ -46,7 +46,7 @@ class _ChatAdminScreenState extends State<ChatAdminScreen> {
     super.dispose();
   }
 
-  // Function to fetch messages from the server
+  
   Future<void> _fetchMessages() async {
     final url = Uri.parse('$baseUrl/${widget.userId}/${widget.adminId}');
     try {
@@ -62,16 +62,15 @@ class _ChatAdminScreenState extends State<ChatAdminScreen> {
                     'time': DateFormat('h:mm a')
                         .format(DateTime.parse(message['timestamp'])),
                     'date': DateFormat('MMM d, yyyy')
-                        .format(DateTime.parse(message['timestamp']))
+                        .format(DateTime.parse(message['timestamp'])),
+                    'email': message['sender']['email'], // add sender's email
                   })
               .toList());
         });
       } else {
-        // ignore:
         print('Failed to load messages');
       }
     } catch (e) {
-      // ignore:
       print('Error fetching messages: $e');
     }
   }
@@ -136,27 +135,34 @@ class _ChatAdminScreenState extends State<ChatAdminScreen> {
               itemCount: messages.length,
               itemBuilder: (context, index) {
                 final message = messages[index];
+                final isSenderBob = message['email'] == 'bob.smith@example.com';
+
                 return Align(
-                  alignment: Alignment.centerRight,
+                  alignment: isSenderBob
+                      ? Alignment.centerLeft
+                      : Alignment.centerRight,
                   child: Container(
                     padding: const EdgeInsets.all(12),
-                    margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                    margin:
+                        const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
                     constraints: BoxConstraints(
                       maxWidth: MediaQuery.of(context).size.width * 0.8,
                     ),
                     decoration: BoxDecoration(
-                      color: message['type'] == 'text'
-                          ? Colors.blue
-                          : Colors.white70,
+                      color: isSenderBob ? Colors.grey[300] : Colors.blue,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
+                      crossAxisAlignment: isSenderBob
+                          ? CrossAxisAlignment.start
+                          : CrossAxisAlignment.end,
                       children: [
                         if (message['type'] == 'text')
                           Text(
                             message['content'],
-                            style: const TextStyle(color: Colors.white),
+                            style: TextStyle(
+                                color:
+                                    isSenderBob ? Colors.black : Colors.white),
                           ),
                         if (message['type'] == 'image')
                           Image.file(
@@ -168,7 +174,8 @@ class _ChatAdminScreenState extends State<ChatAdminScreen> {
                         const SizedBox(height: 5),
                         Text(
                           message['time'],
-                          style: const TextStyle(fontSize: 12, color: Colors.black),
+                          style: const TextStyle(
+                              fontSize: 12, color: Colors.black),
                         ),
                       ],
                     ),

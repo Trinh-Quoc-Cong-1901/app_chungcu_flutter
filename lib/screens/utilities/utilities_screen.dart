@@ -1,6 +1,4 @@
-import 'package:ecogreen_city/screens/account/account_screen.dart';
-import 'package:ecogreen_city/screens/home/home_screen.dart';
-import 'package:ecogreen_city/screens/notification/notification_screen.dart';
+import 'package:ecogreen_city/screens/utilities/detail_utilities_screen.dart';
 import 'package:flutter/material.dart';
 
 class UtilitiesScreen extends StatefulWidget {
@@ -10,64 +8,108 @@ class UtilitiesScreen extends StatefulWidget {
 
 class _UtilitiesScreenState extends State<UtilitiesScreen> {
   var _selectedIndex = 0;
+  final List<Map<String, dynamic>> utilities = [
+    {
+      'title': 'Rạng Đông',
+      'address':
+          'Số 87-89, phố Hạ Đình, Thanh Xuân Trung, Quận Thanh Xuân, Hà Nội',
+      'icon': Icons.store,
+      'color': Colors.green,
+    },
+    {
+      'title': 'Máy lọc nước Kasama',
+      'address': 'Số 164 Nam Đường Q. Long Biên, TP Hà Nội',
+      'icon': Icons.water_damage,
+      'color': Colors.blue,
+    },
+    {
+      'title': 'U ULTTY Việt Nam',
+      'address': 'Số 11 Nguyễn Xiển, Thanh Xuân, Hà Nội',
+      'icon': Icons.cleaning_services,
+      'color': Colors.orange,
+    },
+    {
+      'title': 'Pate Ông Tây',
+      'address': 'Số 40 liên kề 11b2 KĐT Mỗ Lao, Hà Đông, Hà Nội',
+      'icon': Icons.fastfood,
+      'color': Colors.red,
+    },
+  ];
+  String searchQuery = "";
 
   void _onItemTapped(int index) {
-    // Xử lý chuyển đổi các tab trong BottomNavigationBar
     setState(() {
       _selectedIndex = index;
-      // Ở đây bạn có thể điều hướng tới các trang khác, ví dụ như Trang chủ, Tiện ích, Thông báo
-      if (_selectedIndex != 4) {
-        // Điều hướng tới các trang khác ngoài Tài khoản
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => getScreenForIndex(index)),
-        );
-      }
     });
+
+    if (index != 1) {
+      // Index 1 is UtilitiesScreen, so no need to navigate to itself
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => getScreenForIndex(index)),
+      );
+    }
   }
 
-  // Hàm này trả về màn hình phù hợp với chỉ số được chọn
   Widget getScreenForIndex(int index) {
-    switch (index) {
-      case 0:
-        return HomeScreen(); // Trang chủ của tôi
-      case 1:
-        return UtilitiesScreen(); // Tiện ích
-      case 2:
-        return NotificationListScreen(); // Thông báo
-      case 3:
-        return AccountScreen(); // Thông báo
-
-      default:
-        return UtilitiesScreen(); // Tài khoản
-    }
+    // Implement navigation logic here, e.g., return different screens based on index
+    return UtilitiesScreen();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Tiện ích'),
+        title: TextField(
+          onChanged: (value) {
+            setState(() {
+              searchQuery = value.toLowerCase();
+            });
+          },
+          decoration: InputDecoration(
+            hintText: 'Tìm kiếm cửa hàng',
+            prefixIcon: Icon(Icons.search),
+            border: InputBorder.none,
+          ),
+        ),
         centerTitle: true,
       ),
       body: Padding(
         padding: const EdgeInsets.all(10.0),
-        child: GridView.count(
-          crossAxisCount: 2,
-          crossAxisSpacing: 10.0,
-          mainAxisSpacing: 10.0,
-          children: <Widget>[
-            _buildUtilityItem(Icons.wifi, 'Internet', Colors.blue, context),
-            _buildUtilityItem(
-                Icons.local_laundry_service, 'Giặt là', Colors.green, context),
-            _buildUtilityItem(
-                Icons.elevator, 'Thang máy', Colors.orange, context),
-            _buildUtilityItem(
-                Icons.local_parking, 'Bãi đỗ xe', Colors.purple, context),
-            _buildUtilityItem(Icons.security, 'An ninh', Colors.red, context),
-            _buildUtilityItem(
-                Icons.local_grocery_store, 'Siêu thị', Colors.pink, context),
-          ],
+        child: ListView.separated(
+          itemCount: utilities
+              .where((utility) =>
+                  utility['title'].toLowerCase().contains(searchQuery))
+              .length,
+          separatorBuilder: (context, index) => Divider(
+            color: Colors.brown,
+            thickness: 1.0,
+          ),
+          itemBuilder: (context, index) {
+            final utility = utilities
+                .where((utility) =>
+                    utility['title'].toLowerCase().contains(searchQuery))
+                .elementAt(index);
+            return GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => DetailUtilities(
+                        // title: utility['title'],
+                        // address: utility['address'],
+                        ),
+                  ),
+                );
+              },
+              child: ListTile(
+                leading: Icon(utility['icon'], color: utility['color']),
+                title: Text(utility['title']),
+                subtitle: Text(utility['address']),
+                trailing: Icon(Icons.arrow_forward_ios),
+              ),
+            );
+          },
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -75,53 +117,16 @@ class _UtilitiesScreenState extends State<UtilitiesScreen> {
         selectedItemColor: Colors.white,
         unselectedItemColor: Colors.black54,
         type: BottomNavigationBarType.fixed,
-        currentIndex: _selectedIndex, // Chỉ số hiện tại của màn hình được chọn
-        onTap: _onItemTapped, // Gọi hàm khi người dùng nhấn vào tab
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
         items: [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Nhà của tôi'),
           BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Nhà của tôi',
-          ),
+              icon: Icon(Icons.settings), label: 'Tiện ích'),
           BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Tiện ích',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.notifications),
-            label: 'Thông báo',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Tài khoản',
-          ),
+              icon: Icon(Icons.notifications), label: 'Thông báo'),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Tài khoản'),
         ],
-      ),
-    );
-  }
-
-  Widget _buildUtilityItem(
-      IconData icon, String label, Color color, BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Bạn đã chọn tiện ích: $label'),
-        ));
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          color: color.withOpacity(0.2),
-          borderRadius: BorderRadius.circular(15),
-          border: Border.all(color: color, width: 2),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Icon(icon, size: 50, color: color),
-            SizedBox(height: 10),
-            Text(label,
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-          ],
-        ),
       ),
     );
   }

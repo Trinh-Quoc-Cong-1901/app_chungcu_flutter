@@ -391,7 +391,16 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             Column(
               children: [
-                SectionHeaderWidget(title: 'Kiot toà nhà', onViewAll: () {}),
+                SectionHeaderWidget(
+                    title: 'Kiot toà nhà',
+                    onViewAll: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => UtilitiesScreen(),
+                        ),
+                      );
+                    }),
                 CarouselSlider(
                   options: CarouselOptions(
                     // height: 160.0, // Chiều cao của slider
