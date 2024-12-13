@@ -1,10 +1,14 @@
+import 'package:ecogreen_city/screens/utilities/card_screen.dart';
 import 'package:ecogreen_city/screens/utilities/model/product_model.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class DetailUtilities extends StatefulWidget {
+  const DetailUtilities({super.key});
+
   @override
+  // ignore: library_private_types_in_public_api
   _DetailUtilitiesState createState() => _DetailUtilitiesState();
 }
 
@@ -38,6 +42,10 @@ class _DetailUtilitiesState extends State<DetailUtilities> {
     }
   }
 
+  List<Product> getCartProducts() {
+    return cartItems.map((index) => products[index]).toList();
+  }
+
   void updateSearch(String query) {
     setState(() {
       if (query.isEmpty) {
@@ -56,11 +64,9 @@ class _DetailUtilitiesState extends State<DetailUtilities> {
   void toggleCartItem(int index) {
     setState(() {
       if (cartItems.contains(index)) {
-        // If already added to cart, remove it
         cartItems.remove(index);
         cartCount--;
       } else {
-        // If not in cart, add it
         cartItems.add(index);
         cartCount++;
       }
@@ -76,24 +82,25 @@ class _DetailUtilitiesState extends State<DetailUtilities> {
         title: Container(
           height: 40,
           decoration: BoxDecoration(
-            color: Colors.black.withOpacity(0.5), // Semi-transparent background
+            // ignore: deprecated_member_use
+            color: Colors.black.withOpacity(0.5),
             borderRadius: BorderRadius.circular(20),
           ),
           child: TextField(
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               hintText: 'Tìm kiếm trong cửa hàng...',
               hintStyle: TextStyle(color: Colors.white54),
               prefixIcon: Icon(Icons.search, color: Colors.white),
               border: InputBorder.none,
               contentPadding: EdgeInsets.symmetric(vertical: 10),
             ),
-            style: TextStyle(color: Colors.white),
-            onChanged: updateSearch, // Call updateSearch on each text change
+            style: const TextStyle(color: Colors.white),
+            onChanged: updateSearch,
           ),
         ),
         centerTitle: true,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.green),
+          icon: const Icon(Icons.arrow_back, color: Colors.green),
           onPressed: () {
             Navigator.pop(context);
           },
@@ -102,30 +109,37 @@ class _DetailUtilitiesState extends State<DetailUtilities> {
           Stack(
             children: [
               IconButton(
-                icon: Icon(Icons.shopping_cart, color: Colors.green),
+                icon: const Icon(Icons.shopping_cart, color: Colors.green),
                 onPressed: () {
-                  // Cart functionality
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => CartScreen(
+                        cartProducts: getCartProducts(),
+                      ),
+                    ),
+                  );
                 },
               ),
               Positioned(
                 right: 6,
                 top: 6,
                 child: Container(
-                  padding: EdgeInsets.all(3),
-                  decoration: BoxDecoration(
+                  padding: const EdgeInsets.all(3),
+                  decoration: const BoxDecoration(
                     color: Colors.red,
                     shape: BoxShape.circle,
                   ),
                   child: Text(
-                    '$cartCount', // Dynamic cart count
-                    style: TextStyle(color: Colors.white, fontSize: 10),
+                    '$cartCount',
+                    style: const TextStyle(color: Colors.white, fontSize: 10),
                   ),
                 ),
               ),
             ],
           ),
           IconButton(
-            icon: Icon(Icons.more_vert, color: Colors.white),
+            icon: const Icon(Icons.more_vert, color: Colors.white),
             onPressed: () {
               // More options functionality
             },
@@ -133,14 +147,14 @@ class _DetailUtilitiesState extends State<DetailUtilities> {
         ],
       ),
       body: isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
                   child: GridView.builder(
                     padding: const EdgeInsets.all(10.0),
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
                       childAspectRatio: 0.7,
                       crossAxisSpacing: 10,
@@ -166,7 +180,6 @@ class _DetailUtilitiesState extends State<DetailUtilities> {
         children: [
           Stack(
             children: [
-              // Product Image
               ClipRRect(
                 borderRadius: BorderRadius.circular(10),
                 child: Image.network(
@@ -176,17 +189,16 @@ class _DetailUtilitiesState extends State<DetailUtilities> {
                   fit: BoxFit.cover,
                 ),
               ),
-              // Discount Badge
               if (product.discount.isNotEmpty)
                 Positioned(
                   top: 5,
                   left: 5,
                   child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
                     color: Colors.red,
                     child: Text(
                       product.discount,
-                      style: TextStyle(color: Colors.white, fontSize: 12),
+                      style: const TextStyle(color: Colors.white, fontSize: 12),
                     ),
                   ),
                 ),
@@ -201,13 +213,13 @@ class _DetailUtilitiesState extends State<DetailUtilities> {
                   product.name,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                  style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 if (product.priceOld.isNotEmpty)
                   Text(
                     '${product.priceOld}đ',
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: Colors.grey,
                       decoration: TextDecoration.lineThrough,
                       fontSize: 12,
@@ -215,19 +227,18 @@ class _DetailUtilitiesState extends State<DetailUtilities> {
                   ),
                 Text(
                   '${product.priceSale}đ',
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     color: Colors.green,
                   ),
                 ),
-                Text(
+                const Text(
                   '1 Cái',
                   style: TextStyle(color: Colors.grey, fontSize: 12),
                 ),
               ],
             ),
           ),
-          // Add to Cart Button
           Align(
             alignment: Alignment.centerRight,
             child: IconButton(

@@ -12,6 +12,7 @@ class AccountScreen extends StatefulWidget {
   const AccountScreen({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _AccountScreenState createState() => _AccountScreenState();
 }
 
@@ -34,11 +35,11 @@ class _AccountScreenState extends State<AccountScreen> {
   Widget getScreenForIndex(int index) {
     switch (index) {
       case 0:
-        return HomeScreen();
+        return const HomeScreen();
       case 1:
-        return UtilitiesScreen();
+        return const UtilitiesScreen();
       case 2:
-        return NotificationListScreen();
+        return const NotificationListScreen();
       case 3:
         return const AccountScreen();
       default:
@@ -61,20 +62,24 @@ class _AccountScreenState extends State<AccountScreen> {
 
       if (response.statusCode == 200) {
         // Nếu đăng xuất thành công, điều hướng về SignInScreen và xóa tất cả lịch sử điều hướng
+        // ignore: use_build_context_synchronously
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (context) => const SignInScreen()),
           (Route<dynamic> route) => false, // Xóa toàn bộ các route trước đó
         );
       } else {
         // Xử lý lỗi từ API
+        // ignore: use_build_context_synchronously
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Đăng xuất thất bại. Vui lòng thử lại.')),
+          const SnackBar(
+              content: Text('Đăng xuất thất bại. Vui lòng thử lại.')),
         );
       }
     } catch (error) {
       // Hiển thị lỗi mạng hoặc lỗi khác
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Có lỗi xảy ra. Vui lòng thử lại sau.')),
+        const SnackBar(content: Text('Có lỗi xảy ra. Vui lòng thử lại sau.')),
       );
     }
   }
@@ -104,7 +109,8 @@ class _AccountScreenState extends State<AccountScreen> {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => MyAddressScreen()),
+                MaterialPageRoute(
+                    builder: (context) => const MyAddressScreen()),
               );
             },
           ),
@@ -149,14 +155,14 @@ class _AccountScreenState extends State<AccountScreen> {
           ListTile(
             leading: const Icon(Icons.info_outline, color: Colors.blue),
             title: const Text('Thông tin ứng dụng'),
-            subtitle: const Text('© HomeID - Phiên bản: 1.1.6-b12.2.19'),
+            subtitle: const Text('© CongNgao - Phiên bản: 1.0.0'),
             onTap: () {},
           ),
 
           const Padding(
             padding: EdgeInsets.all(16.0),
             child: Text(
-              'Công ty CP Phần mềm và Dịch vụ gia đình HomeID\nGPKD: 0110007865 do sở KH&ĐT TP Hà Nội cấp ngày 24/05/2022.\nMST: 0110007865',
+              'Công ty CP Phần mềm và Dịch vụ gia đình CongNgao\nGPKD: 68686868 do sở KH&ĐT TP Hà Nội cấp ngày 01/01/2025.\nMST: 686868668',
               style: TextStyle(fontSize: 14, color: Colors.grey),
             ),
           ),

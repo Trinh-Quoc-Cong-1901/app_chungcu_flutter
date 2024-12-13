@@ -1,4 +1,4 @@
-import 'package:ecogreen_city/screens/hot_line/hot_line_comment_screen.dart';
+
 import 'package:flutter/material.dart';
 
 import 'package:url_launcher/url_launcher.dart';
@@ -17,38 +17,13 @@ class _HotlineScreenState extends State<HotlineScreen> {
   int commentCount = 0; // Số lượng bình luận
   List<String> comments = []; // Danh sách các bình luận
 
-  void _toggleLike() {
-    setState(() {
-      isLiked = !isLiked;
-      likes = isLiked ? likes + 1 : likes - 1;
-    });
-  }
 
-  void _navigateToComments(BuildContext context) async {
-    // Điều hướng sang màn hình CommentScreen và nhận lại dữ liệu
-    final newComment = await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const HotLineCommentScreen()),
-    );
 
-    // Nếu có bình luận mới
-    if (newComment != null) {
-      setState(() {
-        comments.add(newComment); // Thêm bình luận mới vào danh sách
-        commentCount++; // Tăng số lượng bình luận
-      });
-    }
-  }
-
-  void _shareContent() {
-    // Thực hiện chức năng chia sẻ
-    // ignore: avoid_print
-    print("Chia sẻ nội dung");
-  }
 
   // Hàm mở số điện thoại khi nhấn vào
   void _launchPhone(String phoneNumber) async {
     final Uri phoneUri = Uri(scheme: 'tel', path: phoneNumber);
+    
     // ignore: deprecated_member_use
     if (await canLaunch(phoneUri.toString())) {
       // ignore: deprecated_member_use
@@ -115,19 +90,19 @@ class _HotlineScreenState extends State<HotlineScreen> {
                     // Chăm sóc khách hàng
                     Row(
                       children: [
-                        Text(
+                        const Text(
                           'Công An:',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        SizedBox(
+                        const SizedBox(
                             width:
                                 8), // Thêm khoảng cách nhỏ giữa văn bản và số điện thoại
                         GestureDetector(
                           onTap: () => _launchPhone('113'), // Mở số điện thoại
-                          child: Text(
+                          child: const Text(
                             '113',
                             style: TextStyle(
                               color: Colors.blue,
@@ -143,19 +118,19 @@ class _HotlineScreenState extends State<HotlineScreen> {
                     // Hotline
                     Row(
                       children: [
-                        Text(
+                        const Text(
                           'Cứu Hoả:',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        SizedBox(
+                        const SizedBox(
                             width:
                                 8), // Thêm khoảng cách nhỏ giữa văn bản và số điện thoại
                         GestureDetector(
                           onTap: () => _launchPhone('114'), // Mở số điện thoại
-                          child: Text(
+                          child: const Text(
                             '114',
                             style: TextStyle(
                               color: Colors.blue,
@@ -256,65 +231,7 @@ class _HotlineScreenState extends State<HotlineScreen> {
           // Spacer để đẩy nội dung dưới cùng xuống đáy màn hình
           const SizedBox(height: 4),
 
-          // Hiển thị số lượt thích và bình luận nếu có
-          if (likes > 0 || commentCount > 0)
-            Padding(
-              padding:
-                  const EdgeInsets.symmetric(vertical: 8.0, horizontal: 30),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  if (likes > 0)
-                    Text('$likes lượt thích',
-                        style: const TextStyle(color: Colors.green)),
-                ],
-              ),
-            ),
-
-          const Divider(color: Colors.grey),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 30.0, vertical: 30),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                GestureDetector(
-                  onTap: _toggleLike,
-                  child: Row(
-                    children: [
-                      Icon(Icons.thumb_up,
-                          color: isLiked ? Colors.green : Colors.grey),
-                      const SizedBox(width: 5),
-                      const Text('Thích'),
-                    ],
-                  ),
-                ),
-                GestureDetector(
-                  onTap: () => _navigateToComments(context),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.chat_bubble_outline, color: Colors.grey),
-                      if (commentCount > 0) ...[
-                        const SizedBox(width: 5),
-                        Text('($commentCount)'),
-                      ],
-                      const SizedBox(width: 5),
-                      const Text('Ý kiến'),
-                    ],
-                  ),
-                ),
-                GestureDetector(
-                  onTap: _shareContent,
-                  child: const Row(
-                    children: [
-                      Icon(Icons.share, color: Colors.grey),
-                      SizedBox(width: 5),
-                      Text('Chia sẻ'),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
+          
         ],
       ),
     );

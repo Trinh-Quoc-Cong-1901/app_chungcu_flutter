@@ -46,7 +46,6 @@ class _ChatAdminScreenState extends State<ChatAdminScreen> {
     super.dispose();
   }
 
-  
   Future<void> _fetchMessages() async {
     final url = Uri.parse('$baseUrl/${widget.userId}/${widget.adminId}');
     try {
@@ -126,7 +125,7 @@ class _ChatAdminScreenState extends State<ChatAdminScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Chat Admin'),
+        title: const Text('Chat BQL'),
       ),
       body: Column(
         children: [

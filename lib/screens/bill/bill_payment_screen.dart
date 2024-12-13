@@ -81,7 +81,7 @@ class _BillPaymentScreenState extends State<BillPaymentScreen> {
             });
             Navigator.pop(context);
           },
-          onError: (error) {
+          onError: (error) { 
             log("onError: $error");
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text('Có lỗi xảy ra: $error')),

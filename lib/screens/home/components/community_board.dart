@@ -19,7 +19,7 @@ class CommunityBoardWidget extends StatelessWidget {
               borderRadius: BorderRadius.circular(10), // Bo góc hình ảnh
               image: const DecorationImage(
                 image: AssetImage(
-                    'assets/images/icon_facebook.png'), // Thay thế bằng đường dẫn ảnh nền của bạn
+                    'assets/images/logo.png'), // Thay thế bằng đường dẫn ảnh nền của bạn
                 fit: BoxFit.cover, // Hình ảnh cover toàn bộ diện tích
               ),
             ),

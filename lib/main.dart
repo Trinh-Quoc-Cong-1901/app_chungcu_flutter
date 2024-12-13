@@ -1,4 +1,4 @@
-import 'package:ecogreen_city/screens/home/home_screen.dart';
+// import 'package:ecogreen_city/screens/home/home_screen.dart';
 import 'package:ecogreen_city/screens/splash.dart/splash_screen.dart';
 
 import 'package:flutter/material.dart';
@@ -18,11 +18,8 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (context) => const SplashScreen(), // Màn hình chính
-        '/home': (context) => const HomeScreen(), // Màn hình chính
-        // '/movieDetail': (context) =>
-        //     const MovieDetailScreen(), // Màn hình chi tiết phim
-        // '/movie': (context) => const MovieScreen(), // Màn hình chi tiết phim
-      }, // HomeScreen là trang gốc
+        // '/home': (context) => const HomeScreen(), // Màn hình chính
+      }, 
     );
   }
 }

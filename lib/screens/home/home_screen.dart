@@ -7,6 +7,7 @@ import 'package:ecogreen_city/screens/bill/bill_screen.dart';
 import 'package:ecogreen_city/screens/chat_admin/chat_admin_screen.dart';
 import 'package:ecogreen_city/screens/community/community_screen.dart';
 import 'package:ecogreen_city/screens/family/family_screen.dart';
+import 'package:ecogreen_city/screens/feed/feed_screen.dart';
 import 'package:ecogreen_city/screens/home/components/bill_card.dart';
 import 'package:ecogreen_city/screens/home/components/business_card.dart';
 import 'package:ecogreen_city/screens/home/components/community_board.dart';
@@ -18,6 +19,7 @@ import 'package:ecogreen_city/screens/notification/notification_detail_screen.da
 import 'package:ecogreen_city/screens/notification/notification_screen.dart';
 import 'package:ecogreen_city/screens/request/request_screen.dart';
 import 'package:ecogreen_city/screens/utilities/utilities_screen.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -52,9 +54,9 @@ class _HomeScreenState extends State<HomeScreen> {
       case 0:
         return const HomeScreen(); // Trang chủ của tôi
       case 1:
-        return UtilitiesScreen(); // Tiện ích
+        return const UtilitiesScreen(); // Tiện ích
       case 2:
-        return NotificationListScreen(); // Thông báo
+        return const NotificationListScreen(); // Thông báo
       case 3:
         return const AccountScreen(); // Thông báo
 
@@ -64,15 +66,19 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   List<dynamic> notifications = [];
+  List<dynamic> feedbacks = [];
   List<dynamic> bills = [];
   List<dynamic> unpaidBills = [];
   List<dynamic> paidBills = [];
+  List<dynamic> stores = [];
 
   @override
   void initState() {
     super.initState();
     _loadNotifications();
     _loadBills();
+    _loadStores();
+    _loadFeedbacks();
   }
 
   String _getTotalAmount() {
@@ -103,6 +109,61 @@ class _HomeScreenState extends State<HomeScreen> {
       // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Không thể tải thông báo.')),
+      );
+    }
+  }
+
+  Future<void> _loadFeedbacks() async {
+    try {
+      // Gửi yêu cầu GET đến API
+      final response =
+          await http.get(Uri.parse('http://localhost:3000/api/feedbacks/'));
+
+      if (response.statusCode == 200) {
+        // Parse JSON từ API
+        final List<dynamic> data = jsonDecode(response.body);
+        setState(() {
+          feedbacks =
+              data; // Lưu danh sách cửa hàng vào biến trạng thái `stores`
+        });
+      } else {
+        throw Exception('Failed to load stores');
+      }
+    } catch (e) {
+      // Xử lý lỗi và hiển thị thông báo cho người dùng
+      if (kDebugMode) {
+        print('Error fetching stores: $e');
+      }
+      // ignore: use_build_context_synchronously
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Không thể tải danh sách cửa hàng.')),
+      );
+    }
+  }
+
+  Future<void> _loadStores() async {
+    try {
+      // Gửi yêu cầu GET đến API
+      final response =
+          await http.get(Uri.parse('http://localhost:3000/api/stores/'));
+
+      if (response.statusCode == 200) {
+        // Parse JSON từ API
+        final List<dynamic> data = jsonDecode(response.body);
+        setState(() {
+          stores = data; // Lưu danh sách cửa hàng vào biến trạng thái `stores`
+        });
+      } else {
+        throw Exception('Failed to load stores');
+      }
+    } catch (e) {
+      // Xử lý lỗi và hiển thị thông báo cho người dùng
+      if (kDebugMode) {
+        print('Error fetching stores: $e');
+      }
+      // ignore: use_build_context_synchronously
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Không thể tải danh sách cửa hàng.')),
       );
     }
   }
@@ -196,9 +257,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     title: 'Yêu cầu',
                     icon: Icons.assignment,
                     color: Colors.green,
-                    badgeCount: 3, // Hiển thị 3 thông báo chưa đọc
+                    badgeCount:
+                        feedbacks.length, // Hiển thị 3 thông báo chưa đọc
                     destination:
-                        RequestScreen(), // Thay thế bằng màn hình Yêu cầu
+                        const RequestScreen(), // Thay thế bằng màn hình Yêu cầu
                   ),
                   const IconButtonWidget(
                     title: 'Chat BQL',
@@ -222,7 +284,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     destination:
                         FamilyScreen(), // Thay thế bằng màn hình Gia đình
                   ),
-                  IconButtonWidget(
+                  const IconButtonWidget(
                     title: 'Hotline',
                     icon: Icons.phone,
                     color: Colors.green,
@@ -242,7 +304,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => NotificationListScreen()),
+                          builder: (context) => const NotificationListScreen()),
                     );
                   },
                 ),
@@ -373,7 +435,15 @@ class _HomeScreenState extends State<HomeScreen> {
             Column(
               children: [
                 SectionHeaderWidget(
-                    title: 'BẢNG TIN TOÀ NHÀ', onViewAll: () {}),
+                    title: 'BẢNG TIN TOÀ NHÀ',
+                    onViewAll: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => FeedScreen(),
+                        ),
+                      );
+                    }),
                 CarouselSlider(
                   options: CarouselOptions(
                     height: 160.0, // Chiều cao của slider
@@ -389,37 +459,39 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ],
             ),
+
             Column(
               children: [
                 SectionHeaderWidget(
-                    title: 'Kiot toà nhà',
-                    onViewAll: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => UtilitiesScreen(),
-                        ),
-                      );
-                    }),
-                CarouselSlider(
-                  options: CarouselOptions(
-                    // height: 160.0, // Chiều cao của slider
-                    autoPlay: false, // Tự động chuyển
-                    enlargeCenterPage: false, // Không phóng to item ở giữa
-                    enableInfiniteScroll: false, // Vô hạn scroll
-                    viewportFraction: 0.8, // Điều chỉnh kích thước item
-                  ),
-                  items: List.generate(
-                    5,
-                    (index) => const BusinessCardWidget(
-                      title: 'Máy lọc nước Kasama',
-                      subtitle: 'Chuyên Giao Lọc Nước',
-                      address: 'Số 164 Nam Đường Q. Long Biên, TP Hà Nội',
-                      imagePath:
-                          'assets/images/icon_facebook.png', // Đường dẫn đến ảnh sản phẩm
-                    ),
-                  ), // Thay thế bằng item của bạn
+                  title: 'Kiot toà nhà',
+                  onViewAll: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const UtilitiesScreen(),
+                      ),
+                    );
+                  },
                 ),
+                stores.isEmpty
+                    ? const Center(child: CircularProgressIndicator())
+                    : CarouselSlider(
+                        options: CarouselOptions(
+                          autoPlay: false,
+                          enlargeCenterPage: false,
+                          enableInfiniteScroll: false,
+                          viewportFraction: 0.8,
+                        ),
+                        items: stores.map((store) {
+                          return BusinessCardWidget(
+                            title: store['name'] ?? 'Không có tên',
+                            subtitle: store['description'] ?? 'Không có mô tả',
+                            address: store['address'] ?? 'Không có địa chỉ',
+                            imagePath:
+                                store['imageUrl'] ?? 'assets/images/logo.png',
+                          );
+                        }).toList(),
+                      ),
               ],
             ),
           ],

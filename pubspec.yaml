@@ -46,6 +46,7 @@ dependencies:
   uuid: ^4.5.1
   flutter_paypal_payment: ^1.0.6
   socket_io_client: ^3.0.1
+  shared_preferences: ^2.3.3
 
 dev_dependencies:
   flutter_test:

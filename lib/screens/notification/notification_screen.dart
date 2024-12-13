@@ -67,7 +67,7 @@ class _NotificationListScreenState extends State<NotificationListScreen> {
       case 0:
         return const HomeScreen();
       case 1:
-        return UtilitiesScreen();
+        return const UtilitiesScreen();
       case 2:
         return const NotificationListScreen();
       case 3:

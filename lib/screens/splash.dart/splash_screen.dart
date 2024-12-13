@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:ecogreen_city/components/app_colors/app_colors.dart';
 import 'package:ecogreen_city/components/app_style/app_style.dart';
 import 'package:ecogreen_city/screens/home/home_screen.dart';
-import 'package:ecogreen_city/screens/sign/sign_screen.dart';
+// import 'package:ecogreen_city/screens/sign/sign_screen.dart';
 
 import 'package:flutter/material.dart';
 
@@ -26,7 +26,8 @@ class _SplashScreenState extends State<SplashScreen> {
         context,
         MaterialPageRoute(
             builder: (context) =>
-                const SignInScreen()), // Chuyển đến màn hình HomePage
+                // const SignInScreen()),
+                const HomeScreen()), // Chuyển đến màn hình HomePage
       );
     });
   }
