@@ -1,71 +1,78 @@
-// ignore_for_file: avoid_print
-
 import 'dart:async';
-import 'dart:convert';
-import 'dart:io';
+import 'dart:convert'; // Để sử dụng base64Encode và base64Decode
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 
 class ChatAdminScreen extends StatefulWidget {
-  final String userId =
-      "67107548c80418d6c3e38523"; // User ID for the current user
-  final String adminId = "671076f0f8ce7d3257653147"; // Admin ID for the admin
+  final String userId = "67107548c80418d6c3e38523"; // ID người dùng hiện tại
+  final String adminId = "671076f0f8ce7d3257653147"; // ID admin
 
   const ChatAdminScreen({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
   _ChatAdminScreenState createState() => _ChatAdminScreenState();
 }
 
 class _ChatAdminScreenState extends State<ChatAdminScreen> {
-  final List<Map<String, dynamic>> messages = []; // List to store messages
+  final List<Map<String, dynamic>> messages = []; // Danh sách tin nhắn
   final TextEditingController _messageController = TextEditingController();
   final ImagePicker _picker = ImagePicker();
+  String lastFetchedMessageId = ""; // Lưu trữ ID tin nhắn cuối cùng
   Timer? _timer;
 
-  // Base URL for the API
+  // Base URL của API
   final String baseUrl = 'http://localhost:3000/api/chats';
 
   @override
   void initState() {
     super.initState();
-    _fetchMessages(); // Fetch initial messages when the screen loads
+    _fetchMessages(); // Lấy tin nhắn khi khởi chạy
 
-    // Set up a timer to periodically fetch messages every 5 seconds
-    _timer = Timer.periodic(const Duration(seconds: 5), (timer) {
-      _fetchMessages();
+    // Thiết lập timer để kiểm tra tin nhắn mới
+    _timer = Timer.periodic(const Duration(seconds: 2), (timer) {
+      _fetchMessages(newMessagesOnly: true);
     });
   }
 
   @override
   void dispose() {
-    _timer?.cancel(); // Cancel the timer when the widget is disposed
+    _timer?.cancel(); // Hủy timer khi widget bị dispose
     super.dispose();
   }
 
-  Future<void> _fetchMessages() async {
+  Future<void> _fetchMessages({bool newMessagesOnly = false}) async {
     final url = Uri.parse('$baseUrl/${widget.userId}/${widget.adminId}');
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);
-        setState(() {
-          messages.clear();
-          messages.addAll(data
-              .map((message) => {
-                    'content': message['message'],
-                    'type': 'text', // assuming messages are text-only
-                    'time': DateFormat('h:mm a')
-                        .format(DateTime.parse(message['timestamp'])),
-                    'date': DateFormat('MMM d, yyyy')
-                        .format(DateTime.parse(message['timestamp'])),
-                    'email': message['sender']['email'], // add sender's email
-                  })
-              .toList());
-        });
+
+        if (data.isNotEmpty) {
+          final latestMessageId = data.last['_id'];
+
+          if (!newMessagesOnly || latestMessageId != lastFetchedMessageId) {
+            setState(() {
+              if (!newMessagesOnly) {
+                messages.clear();
+              }
+              messages.addAll(data.map((message) {
+                return {
+                  'content': message['message'],
+                  'type': message['type'], // Phân biệt text hoặc image
+                  'time': DateFormat('h:mm a')
+                      .format(DateTime.parse(message['timestamp'])),
+                  'date': DateFormat('MMM d, yyyy')
+                      .format(DateTime.parse(message['timestamp'])),
+                  'sender': message['sender']['_id'], // ID người gửi
+                };
+              }).toList());
+              lastFetchedMessageId =
+                  latestMessageId; // Cập nhật ID tin nhắn cuối cùng
+            });
+          }
+        }
       } else {
         print('Failed to load messages');
       }
@@ -74,14 +81,14 @@ class _ChatAdminScreenState extends State<ChatAdminScreen> {
     }
   }
 
-  // Function to send a message to the server
-  Future<void> _sendMessage(String content, {String? type}) async {
+  Future<void> _sendMessage(String content, {String type = 'text'}) async {
     if (content.isNotEmpty) {
       final url = Uri.parse(baseUrl);
       final messageData = {
         'sender': widget.userId,
         'receiver': widget.adminId,
         'message': content,
+        'type': type, // Phân biệt text hoặc image
       };
 
       try {
@@ -92,19 +99,19 @@ class _ChatAdminScreenState extends State<ChatAdminScreen> {
         );
 
         if (response.statusCode == 201) {
-          final newMessage = jsonDecode(response.body);
           final now = DateTime.now();
+          final newMessage = {
+            'content': content,
+            'type': type,
+            'time': DateFormat('h:mm a').format(now),
+            'date': DateFormat('MMM d, yyyy').format(now),
+            'sender': widget.userId, // Người gửi là người dùng hiện tại
+          };
           setState(() {
-            messages.add({
-              'content': newMessage['message'],
-              'type': type ?? 'text',
-              'time': DateFormat('h:mm a').format(now),
-              'date': DateFormat('MMM d, yyyy').format(now),
-            });
+            messages.add(newMessage);
           });
           _messageController.clear();
         } else {
-          // ignore:
           print('Failed to send message');
         }
       } catch (e) {
@@ -113,11 +120,12 @@ class _ChatAdminScreenState extends State<ChatAdminScreen> {
     }
   }
 
-  // Function to pick an image and send it as a message
   Future<void> _pickImage() async {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
-      _sendMessage(pickedFile.path, type: 'image'); // send the image path
+      final bytes = await pickedFile.readAsBytes();
+      final base64Image = base64Encode(bytes);
+      _sendMessage(base64Image, type: 'image'); // Gửi tin nhắn dạng ảnh
     }
   }
 
@@ -134,12 +142,13 @@ class _ChatAdminScreenState extends State<ChatAdminScreen> {
               itemCount: messages.length,
               itemBuilder: (context, index) {
                 final message = messages[index];
-                final isSenderBob = message['email'] == 'bob.smith@example.com';
+                // Phân biệt người gửi và người nhận
+                final isSender =
+                    message['sender'] == widget.userId; // Người dùng hiện tại
 
                 return Align(
-                  alignment: isSenderBob
-                      ? Alignment.centerLeft
-                      : Alignment.centerRight,
+                  alignment:
+                      isSender ? Alignment.centerRight : Alignment.centerLeft,
                   child: Container(
                     padding: const EdgeInsets.all(12),
                     margin:
@@ -148,24 +157,24 @@ class _ChatAdminScreenState extends State<ChatAdminScreen> {
                       maxWidth: MediaQuery.of(context).size.width * 0.8,
                     ),
                     decoration: BoxDecoration(
-                      color: isSenderBob ? Colors.grey[300] : Colors.blue,
+                      color: isSender ? Colors.blue : Colors.grey[300],
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Column(
-                      crossAxisAlignment: isSenderBob
-                          ? CrossAxisAlignment.start
-                          : CrossAxisAlignment.end,
+                      crossAxisAlignment: isSender
+                          ? CrossAxisAlignment.end
+                          : CrossAxisAlignment.start,
                       children: [
-                        if (message['type'] == 'text')
+                        if (message['type'] == 'text') // Hiển thị văn bản
                           Text(
                             message['content'],
                             style: TextStyle(
-                                color:
-                                    isSenderBob ? Colors.black : Colors.white),
+                              color: isSender ? Colors.white : Colors.black,
+                            ),
                           ),
-                        if (message['type'] == 'image')
-                          Image.file(
-                            File(message['content']),
+                        if (message['type'] == 'image') // Hiển thị ảnh
+                          Image.memory(
+                            base64Decode(message['content']),
                             width: 150,
                             height: 150,
                             fit: BoxFit.cover,

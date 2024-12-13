@@ -19,7 +19,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/': (context) => const SplashScreen(), // Màn hình chính
         // '/home': (context) => const HomeScreen(), // Màn hình chính
-      }, 
+      },
     );
   }
 }

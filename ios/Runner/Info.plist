@@ -11,6 +11,11 @@
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Ứng dụng này cần quyền thêm ảnh vào thư viện.</string>
 
+	<key>NSAppTransportSecurity</key>
+	<dict>
+    	<key>NSAllowsArbitraryLoads</key>
+    	<true/>
+	</dict>
 
 
 	<key>CFBundleDevelopmentRegion</key>

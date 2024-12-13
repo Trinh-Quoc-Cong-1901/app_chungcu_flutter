@@ -24,13 +24,24 @@ class _BillScreenState extends State<BillScreen> {
     _loadBills();
   }
 
+  // String _getTotalAmount() {
+  //   double total = 0;
+  //   for (var bill in unpaidBills) {
+  //     String amountStr = bill['totalAmount'].replaceAll(RegExp(r'[^0-9]'), '');
+  //     total += double.parse(amountStr);
+  //   }
+  //   return '${total.toStringAsFixed(0)}đ';
+  // }
   String _getTotalAmount() {
     double total = 0;
     for (var bill in unpaidBills) {
-      String amountStr = bill['totalAmount'].replaceAll(RegExp(r'[^0-9]'), '');
-      total += double.parse(amountStr);
+      // Lấy chuỗi số tiền và giữ lại phần thập phân
+      String amountStr = bill['totalAmount'].replaceAll(RegExp(r'[^\d.]'), '');
+      // Chuyển đổi chuỗi thành double và cộng dồn vào tổng
+      total += double.tryParse(amountStr) ?? 0;
     }
-    return '${total.toStringAsFixed(0)}đ';
+    // Trả về kết quả định dạng 2 chữ số thập phân
+    return '${total.toStringAsFixed(2)} USD';
   }
 
   Future<void> _loadBills() async {
@@ -89,7 +100,7 @@ class _BillScreenState extends State<BillScreen> {
                               fontSize: 16, fontWeight: FontWeight.bold),
                         ),
                         Text(
-                          unpaidBills.isNotEmpty ? _getTotalAmount() : '0đ',
+                          unpaidBills.isNotEmpty ? _getTotalAmount() : '0USD',
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,

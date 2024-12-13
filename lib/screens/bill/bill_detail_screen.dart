@@ -24,7 +24,7 @@ class BillDetailScreen extends StatelessWidget {
             const SizedBox(height: 8),
             Text('Title: ${billData['title']}'),
             Text('Tổng tiền: ${billData['totalAmount']}'),
-            Text('Thời gian: ${billData['time']}'),
+            Text('Hạn đóng tiền: ${billData['time']}'),
             const SizedBox(height: 16),
             for (var serviceFee in billData['serviceFees'])
               Card(
@@ -32,7 +32,9 @@ class BillDetailScreen extends StatelessWidget {
                 child: ListTile(
                   title: Text(serviceFee['name']),
                   subtitle: Text(serviceFee['details']),
-                  trailing: Text(serviceFee['amount']),
+                  trailing: Text(
+                    '${serviceFee['amount']} USD',
+                  ),
                 ),
               ),
             const SizedBox(height: 16),

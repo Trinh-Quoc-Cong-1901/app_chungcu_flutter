@@ -8,7 +8,8 @@ class BillCardWidget extends StatelessWidget {
   final bool? isPaid; // Biến kiểm tra trạng thái thanh toán
   final Map<String, dynamic> billData;
 
-  const BillCardWidget({super.key, 
+  const BillCardWidget({
+    super.key,
     required this.title,
     required this.totalAmount,
     required this.paymentPeriod,
@@ -70,7 +71,7 @@ class BillCardWidget extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Kỳ $paymentPeriod',
+                    'Tháng $paymentPeriod',
                     style: const TextStyle(
                       fontSize: 14,
                       color: Colors.grey,
@@ -78,7 +79,7 @@ class BillCardWidget extends StatelessWidget {
                   ),
                   const Spacer(),
                   Text(
-                    totalAmount,
+                    '$totalAmount USD',
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
