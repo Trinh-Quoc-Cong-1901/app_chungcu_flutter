@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:ecogreen_city/screens/feed/feed_detail_screen.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -50,7 +51,6 @@ class _FeedScreenState extends State<FeedScreen> {
       setState(() {
         isLoading = false;
       });
-      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Không thể tải bài viết: $e')),
       );
@@ -70,7 +70,7 @@ class _FeedScreenState extends State<FeedScreen> {
       final response = await http.post(
         Uri.parse('http://localhost:3000/api/posts/$postId/like'),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'userId': userId}), // Sử dụng userId đã lưu
+        body: jsonEncode({'userId': userId}),
       );
 
       if (response.statusCode == 200) {
@@ -79,7 +79,6 @@ class _FeedScreenState extends State<FeedScreen> {
         throw Exception('Failed to like post');
       }
     } catch (e) {
-      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Không thể like bài viết: $e')),
       );
@@ -108,7 +107,6 @@ class _FeedScreenState extends State<FeedScreen> {
         throw Exception('Failed to add comment');
       }
     } catch (e) {
-      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Không thể thêm bình luận: $e')),
       );
@@ -141,18 +139,24 @@ class _FeedScreenState extends State<FeedScreen> {
   }
 }
 
-
-
-class PostCardWidget extends StatelessWidget {
+class PostCardWidget extends StatefulWidget {
   final Map<String, dynamic> post;
   final VoidCallback onLike;
   final Function(String) onComment;
 
-  const PostCardWidget({super.key, 
+  const PostCardWidget({
+    super.key,
     required this.post,
     required this.onLike,
     required this.onComment,
   });
+
+  @override
+  State<PostCardWidget> createState() => _PostCardWidgetState();
+}
+
+class _PostCardWidgetState extends State<PostCardWidget> {
+  bool isExpanded = false;
 
   @override
   Widget build(BuildContext context) {
@@ -163,7 +167,8 @@ class PostCardWidget extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => FeedDetailScreen(post: post),
+            builder: (context) => FeedDetailScreen(
+                post: widget.post,),
           ),
         );
       },
@@ -179,7 +184,7 @@ class PostCardWidget extends StatelessWidget {
                 children: [
                   CircleAvatar(
                     backgroundImage: NetworkImage(
-                      post['author']['avatar'] ??
+                      widget.post['author']['avatar'] ??
                           'https://via.placeholder.com/150',
                     ),
                     radius: 20,
@@ -189,14 +194,16 @@ class PostCardWidget extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        post['author']['name'] ?? 'Không rõ',
+                        widget.post['author']['name'] ?? 'Không rõ',
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
                         ),
                       ),
                       Text(
-                        DateTime.parse(post['createdAt']).toLocal().toString(),
+                        DateTime.parse(widget.post['createdAt'])
+                            .toLocal()
+                            .toString(),
                         style: const TextStyle(
                           fontSize: 12,
                           color: Colors.grey,
@@ -209,17 +216,43 @@ class PostCardWidget extends StatelessWidget {
               const SizedBox(height: 15),
               // Tiêu đề bài viết
               Text(
-                post['title'] ?? 'Không có tiêu đề',
+                widget.post['title'] ?? 'Không có tiêu đề',
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(height: 10),
-              // Nội dung bài viết
-              Text(
-                post['content'] ?? 'Không có nội dung',
-                style: const TextStyle(fontSize: 16),
+              // Nội dung bài viết với "Xem thêm"
+              Text.rich(
+                TextSpan(
+                  text: isExpanded
+                      ? widget.post['content'] ?? 'Không có nội dung'
+                      : (widget.post['content'] ?? 'Không có nội dung')
+                          .substring(
+                              0,
+                              (widget.post['content']?.length ?? 0) > 100
+                                  ? 100
+                                  : widget.post['content']?.length ?? 0),
+                  style: const TextStyle(fontSize: 16),
+                  children: [
+                    if (!isExpanded &&
+                        (widget.post['content']?.length ?? 0) > 100)
+                      TextSpan(
+                        text: '... Xem thêm',
+                        style: const TextStyle(
+                          color: Colors.blue,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () {
+                            setState(() {
+                              isExpanded = true;
+                            });
+                          },
+                      ),
+                  ],
+                ),
               ),
               const SizedBox(height: 10),
               // Like và comment
@@ -230,9 +263,9 @@ class PostCardWidget extends StatelessWidget {
                     children: [
                       IconButton(
                         icon: const Icon(Icons.thumb_up_alt_outlined),
-                        onPressed: onLike,
+                        onPressed: widget.onLike,
                       ),
-                      Text('${post['likes'].length} Likes'),
+                      Text('${widget.post['likes'].length} Likes'),
                     ],
                   ),
                   Row(
@@ -260,7 +293,7 @@ class PostCardWidget extends StatelessWidget {
                                   ),
                                   TextButton(
                                     onPressed: () {
-                                      onComment(commentController.text);
+                                      widget.onComment(commentController.text);
                                       Navigator.of(context).pop();
                                     },
                                     child: const Text('Gửi'),
@@ -271,7 +304,7 @@ class PostCardWidget extends StatelessWidget {
                           );
                         },
                       ),
-                      Text('${post['comments'].length} Comments'),
+                      Text('${widget.post['comments'].length} Comments'),
                     ],
                   ),
                 ],
