@@ -18,7 +18,7 @@ import 'package:ecogreen_city/screens/hot_line/hot_line_screen.dart';
 import 'package:ecogreen_city/screens/notification/notification_detail_screen.dart';
 import 'package:ecogreen_city/screens/notification/notification_screen.dart';
 import 'package:ecogreen_city/screens/request/request_screen.dart';
-import 'package:ecogreen_city/screens/utilities/utilities_screen.dart';
+import 'package:ecogreen_city/screens/stores/stores_screen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -54,7 +54,7 @@ class _HomeScreenState extends State<HomeScreen> {
       case 0:
         return const HomeScreen(); // Trang chủ của tôi
       case 1:
-        return const UtilitiesScreen(); // Tiện ích
+        return StoresScreen(); // Tiện ích
       case 2:
         return const NotificationListScreen(); // Thông báo
       case 3:
@@ -500,7 +500,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const UtilitiesScreen(),
+                        builder: (context) => StoresScreen(),
                       ),
                     );
                   },

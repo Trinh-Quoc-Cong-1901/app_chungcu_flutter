@@ -4,7 +4,7 @@ import 'dart:convert'; // Để sử dụng jsonDecode
 import 'package:ecogreen_city/screens/account/account_screen.dart';
 import 'package:ecogreen_city/screens/home/home_screen.dart';
 import 'package:ecogreen_city/screens/notification/component/notification_item_widget.dart';
-import 'package:ecogreen_city/screens/utilities/utilities_screen.dart';
+import 'package:ecogreen_city/screens/stores/stores_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -67,7 +67,7 @@ class _NotificationListScreenState extends State<NotificationListScreen> {
       case 0:
         return const HomeScreen();
       case 1:
-        return const UtilitiesScreen();
+        return const StoresScreen();
       case 2:
         return const NotificationListScreen();
       case 3:

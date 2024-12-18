@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:ecogreen_city/screens/account/my_address_screen.dart';
 import 'package:ecogreen_city/screens/home/home_screen.dart';
 import 'package:ecogreen_city/screens/notification/notification_screen.dart';
-import 'package:ecogreen_city/screens/utilities/utilities_screen.dart';
+import 'package:ecogreen_city/screens/stores/stores_screen.dart';
 
 import 'package:flutter/material.dart';
 
@@ -37,7 +37,7 @@ class _AccountScreenState extends State<AccountScreen> {
       case 0:
         return const HomeScreen();
       case 1:
-        return const UtilitiesScreen();
+      // return const UtilitiesScreen();
       case 2:
         return const NotificationListScreen();
       case 3:

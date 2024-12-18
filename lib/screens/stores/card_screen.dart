@@ -1,7 +1,7 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_paypal_payment/flutter_paypal_payment.dart';
-import 'package:ecogreen_city/screens/utilities/model/product_model.dart';
+import 'package:ecogreen_city/screens/stores/model/product_model.dart';
 
 class CartScreen extends StatefulWidget {
   final List<Product> cartProducts;
