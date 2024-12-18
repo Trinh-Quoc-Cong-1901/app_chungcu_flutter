@@ -71,6 +71,7 @@ class _HomeScreenState extends State<HomeScreen> {
   List<dynamic> unpaidBills = [];
   List<dynamic> paidBills = [];
   List<dynamic> stores = [];
+  List<dynamic> feeds = [];
 
   @override
   void initState() {
@@ -79,16 +80,9 @@ class _HomeScreenState extends State<HomeScreen> {
     _loadBills();
     _loadStores();
     _loadFeedbacks();
+    _loadfeeds();
   }
 
-  // String _getTotalAmount() {
-  //   double total = 0;
-  //   for (var bill in unpaidBills) {
-  //     String amountStr = bill['totalAmount'].replaceAll(RegExp(r'[^0-9]'), '');
-  //     total += double.parse(amountStr);
-  //   }
-  //   return '${total.toStringAsFixed(0)}USD';
-  // }
   String _getTotalAmount() {
     double total = 0;
     for (var bill in unpaidBills) {
@@ -163,6 +157,33 @@ class _HomeScreenState extends State<HomeScreen> {
         final List<dynamic> data = jsonDecode(response.body);
         setState(() {
           stores = data; // Lưu danh sách cửa hàng vào biến trạng thái `stores`
+        });
+      } else {
+        throw Exception('Failed to load stores');
+      }
+    } catch (e) {
+      // Xử lý lỗi và hiển thị thông báo cho người dùng
+      if (kDebugMode) {
+        print('Error fetching stores: $e');
+      }
+      // ignore: use_build_context_synchronously
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Không thể tải danh sách cửa hàng.')),
+      );
+    }
+  }
+
+  Future<void> _loadfeeds() async {
+    try {
+      // Gửi yêu cầu GET đến API
+      final response =
+          await http.get(Uri.parse('http://localhost:3000/api/posts/allPost'));
+
+      if (response.statusCode == 200) {
+        // Parse JSON từ API
+        final List<dynamic> data = jsonDecode(response.body);
+        setState(() {
+          feeds = data; // Lưu danh sách cửa hàng vào biến trạng thái `stores`
         });
       } else {
         throw Exception('Failed to load stores');
@@ -456,18 +477,18 @@ class _HomeScreenState extends State<HomeScreen> {
                       );
                     }),
                 CarouselSlider(
-                  options: CarouselOptions(
-                    height: 160.0, // Chiều cao của slider
-                    autoPlay: false, // Tự động chuyển
-                    enlargeCenterPage: false, // Không phóng to item ở giữa
-                    enableInfiniteScroll: false, // Vô hạn scroll
-                    viewportFraction: 0.8, // Điều chỉnh kích thước item
-                  ),
-                  items: List.generate(
-                    5,
-                    (index) => const CommunityBoardWidget(),
-                  ), // Thay thế bằng item của bạn
-                ),
+                    options: CarouselOptions(
+                      // height: 160.0, // Chiều cao của slider
+                      autoPlay: false, // Tự động chuyển
+                      enlargeCenterPage: false, // Không phóng to item ở giữa
+                      enableInfiniteScroll: false, // Vô hạn scroll
+                      viewportFraction: 0.8, // Điều chỉnh kích thước item
+                    ),
+                    items: feeds.map((feed) {
+                      return CommunityBoardWidget(feed: feed);
+                    }).toList()
+                    // Thay thế bằng item của bạn
+                    ),
               ],
             ),
 
@@ -494,13 +515,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           viewportFraction: 0.8,
                         ),
                         items: stores.map((store) {
-                          return BusinessCardWidget(
-                            title: store['name'] ?? 'Không có tên',
-                            subtitle: store['description'] ?? 'Không có mô tả',
-                            address: store['address'] ?? 'Không có địa chỉ',
-                            imagePath:
-                                store['imageUrl'] ?? 'assets/images/logo.png',
-                          );
+                          return BusinessCardWidget(store: store);
                         }).toList(),
                       ),
               ],

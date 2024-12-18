@@ -1,56 +1,68 @@
+import 'package:ecogreen_city/screens/feed/feed_detail_screen.dart';
 import 'package:flutter/material.dart';
 
 class CommunityBoardWidget extends StatelessWidget {
-  const CommunityBoardWidget({super.key});
+  final Map<String, dynamic> feed;
+
+  const CommunityBoardWidget({super.key, required this.feed});
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10), // Bo góc card
-      ),
-      child: Stack(
-        children: [
-          // Hình ảnh nền
-          Container(
-            height: 140, // Chiều cao của card
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10), // Bo góc hình ảnh
-              image: const DecorationImage(
-                image: AssetImage(
-                    'assets/images/logo.png'), // Thay thế bằng đường dẫn ảnh nền của bạn
-                fit: BoxFit.cover, // Hình ảnh cover toàn bộ diện tích
-              ),
-            ),
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => FeedDetailScreen(post: feed),
           ),
-          // Văn bản với container có nền
-          Positioned(
-            bottom: 0, // Đặt văn bản ở cuối
-            left: 0,
-            right: 0,
-            child: Container(
-              padding: const EdgeInsets.symmetric(
-                  vertical: 8.0,
-                  horizontal: 12.0), // Khoảng cách padding trong Container
+        );
+      },
+      child: Card(
+        margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10), // Bo góc card
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Hình ảnh nền
+            Container(
+              height: 140, // Chiều cao của card
               decoration: BoxDecoration(
-                color: Colors.grey[200], // Nền màu đen mờ
-                borderRadius:
-                    BorderRadius.circular(5), // Bo góc nhẹ cho Container
-              ),
-              child: const Text(
-                ' Thông báo quan trọng Thông báo quan trọng Thông báo quan trọng',
-                style: TextStyle(
-                  color: Colors.grey, // Màu trắng cho văn bản
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold, // Bôi đậm cho văn bản
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(10),
+                  topRight: Radius.circular(10),
+                ), // Bo góc chỉ cho phần trên
+                image: const DecorationImage(
+                  image: AssetImage(
+                    'assets/images/logo.png', // Thay thế bằng đường dẫn ảnh của bạn
+                  ),
+                  fit: BoxFit.cover, // Hình ảnh cover toàn bộ diện tích
                 ),
-                maxLines: 2, // Giới hạn số dòng hiển thị
-                overflow: TextOverflow.ellipsis,
               ),
             ),
-          ),
-        ],
+            // Nội dung văn bản
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Tiêu đề
+                  Text(
+                    feed['title'] ?? 'Không có tiêu đề',
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold, // Bôi đậm cho tiêu đề
+                    ),
+                    maxLines: 2, // Giới hạn số dòng hiển thị
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

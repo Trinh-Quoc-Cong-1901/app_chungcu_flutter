@@ -1,18 +1,8 @@
 import 'package:flutter/material.dart';
 
 class BusinessCardWidget extends StatelessWidget {
-  final String title;
-  final String subtitle;
-  final String address;
-  final String imagePath;
-
-  const BusinessCardWidget({
-    super.key,
-    required this.title,
-    required this.subtitle,
-    required this.address,
-    required this.imagePath,
-  });
+  final Map<String, dynamic> store;
+  const BusinessCardWidget({super.key, required this.store});
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +18,7 @@ class BusinessCardWidget extends StatelessWidget {
           ClipRRect(
             borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
             child: Image.asset(
-              imagePath,
+              store['image'] ?? 'assets/images/logo.png',
               width: double.infinity,
               height: 140, // Chiều cao hình ảnh
               fit: BoxFit.cover, // Hình ảnh cover toàn bộ diện tích
@@ -41,7 +31,7 @@ class BusinessCardWidget extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  title,
+                  store['name'] ?? 'Không rõ',
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -49,7 +39,7 @@ class BusinessCardWidget extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  subtitle,
+                  store['description'] ?? 'Cửa hàng Ecogreen City',
                   style: TextStyle(
                     fontSize: 14,
                     color: Colors.grey[600],
@@ -57,7 +47,7 @@ class BusinessCardWidget extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  address,
+                  store['address'] ?? '286 Nguyễn Xiển, Thanh Xuân, Hà Nội',
                   style: TextStyle(
                     fontSize: 12,
                     color: Colors.grey[600],

@@ -168,7 +168,8 @@ class _PostCardWidgetState extends State<PostCardWidget> {
           context,
           MaterialPageRoute(
             builder: (context) => FeedDetailScreen(
-                post: widget.post,),
+              post: widget.post,
+            ),
           ),
         );
       },
@@ -223,7 +224,7 @@ class _PostCardWidgetState extends State<PostCardWidget> {
                 ),
               ),
               const SizedBox(height: 10),
-              // Nội dung bài viết với "Xem thêm"
+              // Nội dung bài viết với "Xem thêm
               Text.rich(
                 TextSpan(
                   text: isExpanded
