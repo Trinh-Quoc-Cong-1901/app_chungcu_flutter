@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:ecogreen_city/screens/account/order_screen.dart';
 import 'package:ecogreen_city/screens/sign/sign_screen.dart';
 import 'package:http/http.dart' as http;
 import 'package:ecogreen_city/screens/account/my_address_screen.dart';
@@ -37,7 +38,7 @@ class _AccountScreenState extends State<AccountScreen> {
       case 0:
         return const HomeScreen();
       case 1:
-      // return const UtilitiesScreen();
+        return const StoresScreen();
       case 2:
         return const NotificationListScreen();
       case 3:
@@ -128,7 +129,12 @@ class _AccountScreenState extends State<AccountScreen> {
             title: const Text('Đơn hàng của tôi'),
             subtitle:
                 const Text('Các đơn hàng bạn đã đặt tới các Cửa hàng tòa nhà'),
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => OrderScreen()),
+              );
+            },
           ),
 
           ListTile(
