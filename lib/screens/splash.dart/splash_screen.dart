@@ -1,10 +1,13 @@
 import 'dart:async';
 import 'package:ecogreen_city/components/app_colors/app_colors.dart';
 import 'package:ecogreen_city/components/app_style/app_style.dart';
+import 'package:ecogreen_city/providers/auth_provider.dart';
 import 'package:ecogreen_city/screens/home/home_screen.dart';
+import 'package:ecogreen_city/screens/sign/sign_screen.dart';
 // import 'package:ecogreen_city/screens/sign/sign_screen.dart';
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -19,16 +22,31 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
 
-    // Chuyển sang màn hình chính sau 2 giây
-    Timer(const Duration(seconds: 1), () {
-      // sử dụng pushReplacement để bỏ trang hiện tại ra khoải stack vì thế sẽ không quay lại được.
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-            builder: (context) =>
-                // const SignInScreen()),
-                const HomeScreen()), // Chuyển đến màn hình HomePage
-      );
+    //   // Chuyển sang màn hình chính sau 2 giây
+    //   Timer(const Duration(seconds: 1), () {
+    //     // sử dụng pushReplacement để bỏ trang hiện tại ra khoải stack vì thế sẽ không quay lại được.
+    //     Navigator.pushReplacement(
+    //       context,
+    //       MaterialPageRoute(builder: (context) => const SignInScreen()),
+    //     );
+    //   });
+    // }
+
+    // Chuyển màn hình dựa vào trạng thái đăng nhập
+    Timer(const Duration(seconds: 2), () {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+
+      if (authProvider.isLoggedIn) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const HomeScreen()),
+        );
+      } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const SignInScreen()),
+        );
+      }
     });
   }
 

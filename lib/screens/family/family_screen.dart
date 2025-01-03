@@ -1,98 +1,78 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'package:ecogreen_city/services/data_service.dart';
 
 class FamilyScreen extends StatefulWidget {
   const FamilyScreen({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
   _FamilyScreenState createState() => _FamilyScreenState();
 }
 
 class _FamilyScreenState extends State<FamilyScreen> {
-  List<Map<String, dynamic>> members = []; // Danh sách thành viên từ API
+  final DataService _dataService = DataService();
+  Map<String, dynamic>? userData; // Dữ liệu chủ hộ
+  List<dynamic> members = []; // Danh sách thành viên
+  bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _fetchMembers(); // Gọi API để lấy danh sách thành viên
+    _loadUserData();
   }
 
-  // Hàm để lấy danh sách thành viên từ API
-  Future<void> _fetchMembers() async {
-    final response = await http.get(
-        Uri.parse('http://localhost:3000/api/users/67107548c80418d6c3e38523'));
-
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
+  // Load dữ liệu từ API
+  Future<void> _loadUserData() async {
+    try {
       setState(() {
-        members = List<Map<String, dynamic>>.from(data['members']);
+        isLoading = true;
       });
-    } else {
-      // Xử lý khi không tải được dữ liệu
-      // ignore: use_build_context_synchronously
+      final data = await _dataService.fetchUserData();
+      setState(() {
+        userData = data;
+        members = data['members'] ?? [];
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Không thể tải danh sách thành viên')),
+        SnackBar(content: Text('Không thể tải dữ liệu: $e')),
       );
     }
   }
 
-// Hàm để xóa thành viên khỏi cơ sở dữ liệu
-  Future<void> _deleteMember(String memberId, int index) async {
-    final response = await http.delete(
-      Uri.parse(
-          'http://localhost:3000/api/members/67107548c80418d6c3e38523/$memberId'),
-      headers: {"Content-Type": "application/json"},
-    );
-
-    if (response.statusCode == 200) {
-      setState(() {
-        members
-            .removeAt(index); // Xóa thành viên khỏi danh sách trong giao diện
-      });
-      // ignore: use_build_context_synchronously
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Thành viên đã được xóa')),
-      );
-    } else {
-      // ignore: use_build_context_synchronously
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Không thể xóa thành viên')),
-      );
-    }
-  }
-
-  // Hàm để thêm thành viên mới
+  // Thêm thành viên mới
   Future<void> _addMember(String name, int age, String relation) async {
-    final newMember = {
-      "name": name,
-      "age": age,
-      "relation": relation,
-    };
-
-    final response = await http.post(
-      Uri.parse('http://localhost:3000/api/members/67107548c80418d6c3e38523'),
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode(newMember),
-    );
-
-    if (response.statusCode == 201) {
-      setState(() {
-        members.add(newMember); // Cập nhật giao diện với thành viên mới
-      });
-      // ignore: use_build_context_synchronously
+    try {
+      await _dataService.addMember(name, age, relation);
+      await _loadUserData(); // Cập nhật danh sách
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Thành viên đã được thêm thành công')),
+        const SnackBar(content: Text('Thành viên đã được thêm.')),
       );
-    } else {
-      // ignore: use_build_context_synchronously
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Không thể thêm thành viên')),
+        SnackBar(content: Text('Không thể thêm thành viên: $e')),
       );
     }
   }
 
+  // Xóa thành viên
+  Future<void> _deleteMember(String memberId) async {
+    try {
+      await _dataService.deleteMember(memberId);
+      await _loadUserData(); // Cập nhật danh sách
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Thành viên đã được xóa.')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Không thể xóa thành viên: $e')),
+      );
+    }
+  }
+
+  // Dialog thêm thành viên
   void _showAddMemberDialog() {
     final nameController = TextEditingController();
     final ageController = TextEditingController();
@@ -123,9 +103,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
           ),
           actions: [
             TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+              onPressed: () => Navigator.of(context).pop(),
               child: const Text('Hủy'),
             ),
             TextButton(
@@ -150,35 +128,60 @@ class _FamilyScreenState extends State<FamilyScreen> {
       appBar: AppBar(
         title: const Text('Danh sách thành viên'),
       ),
-      body: members.isEmpty
-          ? const Center(child: Text('Chưa có thành viên'))
-          : ListView.builder(
-              itemCount: members.length,
-              itemBuilder: (context, index) {
-                final member = members[index];
-                return Card(
-                  margin:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                  child: ListTile(
-                    leading: const Icon(Icons.person, size: 50),
-                    title: Text(member['name']),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Tuổi: ${member['age']}'),
-                        Text('Quan hệ: ${member['relation']}'),
-                      ],
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : userData == null
+              ? const Center(child: Text('Không thể tải dữ liệu chủ hộ.'))
+              : Column(
+                  children: [
+                    // Thông tin chủ hộ
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Card(
+                        child: ListTile(
+                          leading: const Icon(Icons.home, size: 40),
+                          title: Text(userData?['name'] ?? 'Không rõ'),
+                          subtitle: Text('Chủ hộ'),
+                        ),
+                      ),
                     ),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () => _deleteMember(member['_id'], index),
+                    // Danh sách thành viên
+                    Expanded(
+                      child: members.isEmpty
+                          ? const Center(child: Text('Chưa có thành viên.'))
+                          : ListView.builder(
+                              itemCount: members.length,
+                              itemBuilder: (context, index) {
+                                final member = members[index];
+                                return Card(
+                                  margin: const EdgeInsets.symmetric(
+                                      horizontal: 10, vertical: 5),
+                                  child: ListTile(
+                                    leading: const Icon(Icons.person, size: 50),
+                                    title: Text(member['name']),
+                                    subtitle: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text('Tuổi: ${member['age']}'),
+                                        Text('Quan hệ: ${member['relation']}'),
+                                      ],
+                                    ),
+                                    trailing: IconButton(
+                                      icon: const Icon(Icons.delete,
+                                          color: Colors.red),
+                                      onPressed: () =>
+                                          _deleteMember(member['_id']),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
                     ),
-                  ),
-                );
-              },
-            ),
+                  ],
+                ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _showAddMemberDialog, // Mở dialog để thêm thành viên
+        onPressed: _showAddMemberDialog, // Mở dialog thêm thành viên
         child: const Icon(Icons.person_add),
       ),
     );

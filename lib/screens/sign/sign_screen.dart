@@ -1,9 +1,8 @@
-
-
 import 'dart:convert';
+import 'package:ecogreen_city/screens/home/home2_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:ecogreen_city/services/auth_service.dart';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ecogreen_city/components/app_colors/app_colors.dart';
 import 'package:ecogreen_city/components/app_style/app_style.dart';
 import 'package:ecogreen_city/components/custom_button/custom_button.dart';
@@ -11,61 +10,27 @@ import 'package:ecogreen_city/components/custom_button/custom_textfield.dart';
 import 'package:ecogreen_city/screens/home/home_screen.dart';
 
 class SignInScreen extends StatefulWidget {
-  final String? email;
-  final String? password;
-
-  const SignInScreen({super.key, this.email, this.password});
+  const SignInScreen({super.key});
 
   @override
   State<SignInScreen> createState() => _SignInScreenState();
 }
 
 class _SignInScreenState extends State<SignInScreen> {
-  late TextEditingController _emailController;
-  late TextEditingController _passwordController;
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final AuthService _authService = AuthService();
 
   String? _errorText;
   bool _isLoading = false;
 
-  @override
-  void initState() {
-    super.initState();
-    _emailController = TextEditingController(text: widget.email);
-    _passwordController = TextEditingController(text: widget.password);
-  }
-
-  // Hàm kiểm tra định dạng email
-  bool _isValidEmail(String email) {
-    return RegExp(r'^[a-zA-Z0-9._]+@[a-zA-Z0-9]+\.[a-zA-Z]+').hasMatch(email);
-  }
-
-  // Hàm xử lý khi người dùng thay đổi nội dung TextField
-  void _handleEmailChange(String value) {
-    setState(() {
-      _errorText = value.isEmpty
-          ? null
-          : (_isValidEmail(value) ? null : 'Email invalid');
-    });
-  }
-
-  // Hàm lưu thông tin người dùng vào SharedPreferences
-  Future<void> _saveUserData(Map<String, dynamic> userData) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('userId', userData['userId']);
-    await prefs.setString('name', userData['name']);
-    await prefs.setString('email', userData['email']);
-    await prefs.setString('token', userData['token']);
-    await prefs.setString('role', userData['role']);
-  }
-
-  // Hàm gọi API đăng nhập
   Future<void> _signIn() async {
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
 
     if (email.isEmpty || password.isEmpty) {
       setState(() {
-        _errorText = 'Email và mật khẩu không được để trống';
+        _errorText = 'Email và mật khẩu không được để trống.';
       });
       return;
     }
@@ -85,18 +50,15 @@ class _SignInScreenState extends State<SignInScreen> {
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
 
-        // Lưu thông tin người dùng
-        await _saveUserData({
-          'userId': responseData['user']['id'],
-          'name': responseData['user']['name'],
-          'email': responseData['user']['email'],
-          'token': responseData['accessToken'],
-          'role': responseData['user']['role'],
-        });
+        // Lưu token và thông tin người dùng qua AuthService
+        await _authService.saveLoginData(
+          accessToken: responseData['accessToken'],
+          refreshToken: responseData['refreshToken'],
+          user: responseData['user']['id'],
+        );
 
-        // Chuyển sang màn hình Home
+        // Chuyển đến HomeScreen
         Navigator.pushReplacement(
-          // ignore: use_build_context_synchronously
           context,
           MaterialPageRoute(builder: (context) => const HomeScreen()),
         );
@@ -106,9 +68,9 @@ class _SignInScreenState extends State<SignInScreen> {
           _errorText = responseData['message'];
         });
       }
-    } catch (error) {
+    } catch (e) {
       setState(() {
-        _errorText = 'Có lỗi xảy ra. Vui lòng thử lại sau.';
+        _errorText = 'Đã xảy ra lỗi. Vui lòng thử lại.';
       });
     } finally {
       setState(() {
@@ -192,7 +154,13 @@ class _SignInScreenState extends State<SignInScreen> {
         'assets/images/icon_email.png',
         scale: 2,
       ),
-      onChanged: _handleEmailChange,
+      onChanged: (value) {
+        setState(() {
+          _errorText = value.isEmpty
+              ? null
+              : (_isValidEmail(value) ? null : 'Email không hợp lệ');
+        });
+      },
       errorText: _errorText,
     );
   }
@@ -240,5 +208,9 @@ class _SignInScreenState extends State<SignInScreen> {
               ),
       ),
     );
+  }
+
+  bool _isValidEmail(String email) {
+    return RegExp(r'^[a-zA-Z0-9._]+@[a-zA-Z0-9]+\.[a-zA-Z]+').hasMatch(email);
   }
 }

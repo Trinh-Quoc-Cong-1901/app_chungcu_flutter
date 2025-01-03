@@ -8,7 +8,7 @@ import 'package:ecogreen_city/screens/chat_admin/chat_admin_screen.dart';
 import 'package:ecogreen_city/screens/community/community_screen.dart';
 import 'package:ecogreen_city/screens/family/family_screen.dart';
 import 'package:ecogreen_city/screens/feed/feed_screen.dart';
-import 'package:ecogreen_city/screens/home/components/bill_card.dart';
+import 'package:ecogreen_city/screens/home/components/bill_card_widget.dart';
 import 'package:ecogreen_city/screens/home/components/business_card.dart';
 import 'package:ecogreen_city/screens/home/components/community_board.dart';
 import 'package:ecogreen_city/screens/home/components/icon_button_with_badge.dart';
@@ -19,8 +19,11 @@ import 'package:ecogreen_city/screens/notification/notification_detail_screen.da
 import 'package:ecogreen_city/screens/notification/notification_screen.dart';
 import 'package:ecogreen_city/screens/request/request_screen.dart';
 import 'package:ecogreen_city/screens/stores/stores_screen.dart';
+import 'package:ecogreen_city/services/auth_service.dart';
+import 'package:ecogreen_city/services/data_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 
 class HomeScreen extends StatefulWidget {
@@ -65,7 +68,10 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  final DataService _dataService = DataService();
+
   List<dynamic> notifications = [];
+  List<dynamic> newNotifications = [];
   List<dynamic> feedbacks = [];
   List<dynamic> bills = [];
   List<dynamic> unpaidBills = [];
@@ -76,11 +82,43 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _loadNotifications();
-    _loadBills();
-    _loadStores();
-    _loadFeedbacks();
-    _loadfeeds();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    try {
+      final results = await Future.wait([
+        _dataService.loadNotifications(),
+        _dataService.loadFeedbacks(),
+        _dataService.loadStores(),
+        _dataService.loadFeeds(),
+        _dataService.loadBills(),
+      ]);
+
+      setState(() {
+        notifications = results[0];
+        feedbacks = results[1];
+        stores = results[2];
+        feeds = results[3];
+        bills = results[4];
+
+        // Lọc hóa đơn chưa thanh toán và đã thanh toán
+        unpaidBills =
+            bills.where((bill) => bill['status'] == "Chưa thanh toán").toList();
+        paidBills =
+            bills.where((bill) => bill['status'] == "Đã thanh toán").toList();
+
+        // Lọc thông báo chưa đọc
+        newNotifications = notifications
+            .where((notification) => notification['isRead'] == false)
+            .toList();
+      });
+    } catch (e) {
+      print('Error loading data: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Không thể tải dữ liệu.')),
+      );
+    }
   }
 
   String _getTotalAmount() {
@@ -95,128 +133,42 @@ class _HomeScreenState extends State<HomeScreen> {
     return '${total.toStringAsFixed(2)} USD';
   }
 
-  Future<void> _loadNotifications() async {
-    try {
-      final response =
-          await http.get(Uri.parse('http://localhost:3000/api/notifications/'));
+  // void _navigateToDetail(Map<String, dynamic> notification) {
+  //   final String type = notification['type'];
+  //   final String relatedId = notification['relatedId'];
 
-      if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(response.body);
-        setState(() {
-          notifications = data;
-        });
-      } else {
-        throw Exception('Failed to load notifications');
-      }
-    } catch (e) {
-      // ignore: avoid_print
-      print('Error fetching notifications: $e');
-      // ignore: use_build_context_synchronously
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Không thể tải thông báo.')),
-      );
-    }
-  }
-
-  Future<void> _loadFeedbacks() async {
-    try {
-      // Gửi yêu cầu GET đến API
-      final response =
-          await http.get(Uri.parse('http://localhost:3000/api/feedbacks/'));
-
-      if (response.statusCode == 200) {
-        // Parse JSON từ API
-        final List<dynamic> data = jsonDecode(response.body);
-        setState(() {
-          feedbacks =
-              data; // Lưu danh sách cửa hàng vào biến trạng thái `stores`
-        });
-      } else {
-        throw Exception('Failed to load stores');
-      }
-    } catch (e) {
-      // Xử lý lỗi và hiển thị thông báo cho người dùng
-      if (kDebugMode) {
-        print('Error fetching stores: $e');
-      }
-      // ignore: use_build_context_synchronously
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Không thể tải danh sách cửa hàng.')),
-      );
-    }
-  }
-
-  Future<void> _loadStores() async {
-    try {
-      // Gửi yêu cầu GET đến API
-      final response =
-          await http.get(Uri.parse('http://localhost:3000/api/stores/'));
-
-      if (response.statusCode == 200) {
-        // Parse JSON từ API
-        final List<dynamic> data = jsonDecode(response.body);
-        setState(() {
-          stores = data; // Lưu danh sách cửa hàng vào biến trạng thái `stores`
-        });
-      } else {
-        throw Exception('Failed to load stores');
-      }
-    } catch (e) {
-      // Xử lý lỗi và hiển thị thông báo cho người dùng
-      if (kDebugMode) {
-        print('Error fetching stores: $e');
-      }
-      // ignore: use_build_context_synchronously
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Không thể tải danh sách cửa hàng.')),
-      );
-    }
-  }
-
-  Future<void> _loadfeeds() async {
-    try {
-      // Gửi yêu cầu GET đến API
-      final response =
-          await http.get(Uri.parse('http://localhost:3000/api/posts/allPost'));
-
-      if (response.statusCode == 200) {
-        // Parse JSON từ API
-        final List<dynamic> data = jsonDecode(response.body);
-        setState(() {
-          feeds = data; // Lưu danh sách cửa hàng vào biến trạng thái `stores`
-        });
-      } else {
-        throw Exception('Failed to load stores');
-      }
-    } catch (e) {
-      // Xử lý lỗi và hiển thị thông báo cho người dùng
-      if (kDebugMode) {
-        print('Error fetching stores: $e');
-      }
-      // ignore: use_build_context_synchronously
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Không thể tải danh sách cửa hàng.')),
-      );
-    }
-  }
-
-  Future<void> _loadBills() async {
-    final response =
-        await http.get(Uri.parse('http://localhost:3000/api/invoices'));
-
-    if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
-      setState(() {
-        unpaidBills =
-            data.where((bill) => bill['status'] == "Chưa thanh toán").toList();
-        paidBills =
-            data.where((bill) => bill['status'] == "Đã thanh toán").toList();
-      });
-    } else {
-      // Xử lý lỗi nếu cần
-      throw Exception('Failed to load invoices');
-    }
-  }
+  //   switch (type) {
+  //     case 'order':
+  //       Navigator.push(
+  //         context,
+  //         MaterialPageRoute(
+  //           builder: (context) => OrderDetailScreen(orderId: relatedId),
+  //         ),
+  //       );
+  //       break;
+  //     case 'feedback':
+  //       Navigator.push(
+  //         context,
+  //         MaterialPageRoute(
+  //           builder: (context) => FeedbackDetailScreen(feedbackId: relatedId),
+  //         ),
+  //       );
+  //       break;
+  //     case 'invoice':
+  //       Navigator.push(
+  //         context,
+  //         MaterialPageRoute(
+  //           builder: (context) => InvoiceDetailScreen(invoiceId: relatedId),
+  //         ),
+  //       );
+  //       break;
+  //     default:
+  //       // Xử lý nếu type không khớp
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         const SnackBar(content: Text('Không thể mở chi tiết thông báo.')),
+  //       );
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -342,7 +294,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(height: 16.0),
                 // Kiểm tra nếu chưa load được thông báo
-                notifications.isEmpty
+                newNotifications.isEmpty
                     ? const Center(child: CircularProgressIndicator())
                     : CarouselSlider(
                         options: CarouselOptions(
@@ -353,35 +305,27 @@ class _HomeScreenState extends State<HomeScreen> {
                           enableInfiniteScroll: false, // Vô hạn scroll
                           viewportFraction: 0.8, // Điều chỉnh kích thước item
                         ),
-                        items: notifications.map((notification) {
+                        items: newNotifications.map((notification) {
                           return GestureDetector(
                             onTap: () {
-                              // Điều hướng đến màn hình chi tiết khi ấn vào
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      NotificationDetailScreen(
-                                    title: notification['title'],
-                                    time: notification['time'],
-                                    content: notification['content'],
-                                  ),
-                                ),
-                              );
+                              // Điều hướng đến màn hình chi tiết dựa trên `type`
+                              // _navigateToDetail(notification);
                             },
                             child: NotificationCardWidget(
-                              imageUrl: notification['imageUrl'],
                               title: notification['title'],
-                              timeAgo: notification['timeAgo'],
+                              isRead: notification['isRead'],
+                              createdAt: notification['createdAt'],
                             ),
                           );
                         }).toList(),
                       ),
               ],
             ),
+
             // hoá đơn
             Column(
               children: [
+                // Hoá đơn chưa thanh toán
                 SectionHeaderWidget(
                   title: 'Hoá đơn chưa thanh toán',
                   onViewAll: () {
@@ -393,7 +337,13 @@ class _HomeScreenState extends State<HomeScreen> {
                   },
                 ),
                 unpaidBills.isEmpty
-                    ? const Center(child: CircularProgressIndicator())
+                    ? const Center(
+                        child: Text(
+                          'Không có hoá đơn chưa thanh toán',
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.w500),
+                        ),
+                      )
                     : CarouselSlider(
                         options: CarouselOptions(
                           height: 170, // Chiều cao của slider
@@ -418,13 +368,15 @@ class _HomeScreenState extends State<HomeScreen> {
                             },
                             child: BillCardWidget(
                               title: bill['title'],
-                              paymentPeriod: bill['paymentPeriod'],
+                              paymentDueDate: bill[
+                                  'paymentDueDate'], // Ngày hết hạn thanh toán
                               totalAmount: bill['totalAmount'],
-                              billData: bill,
                             ),
                           );
                         }).toList(),
                       ),
+                const SizedBox(height: 16.0),
+                // Tổng tiền và nút thanh toán
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Row(
@@ -436,7 +388,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             fontSize: 16, fontWeight: FontWeight.bold),
                       ),
                       Text(
-                        unpaidBills.isNotEmpty ? _getTotalAmount() : '0USD',
+                        unpaidBills.isNotEmpty ? _getTotalAmount() : '0 VND',
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -444,18 +396,18 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                       ElevatedButton(
-                        onPressed: () {
-                          // Xử lý thanh toán ở đây
-
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => BillPaymentScreen(
-                                unpaidBills: unpaidBills,
-                              ),
-                            ),
-                          );
-                        },
+                        onPressed: unpaidBills.isEmpty
+                            ? null
+                            : () {
+                                // Xử lý thanh toán ở đây
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => BillPaymentScreen(
+                                        unpaidBills: unpaidBills),
+                                  ),
+                                );
+                              },
                         child: const Text('Thanh toán'),
                       ),
                     ],

@@ -47,6 +47,10 @@ dependencies:
   flutter_paypal_payment: ^1.0.6
   socket_io_client: ^3.0.1
   shared_preferences: ^2.3.3
+  provider: ^6.1.2
+  flutter_secure_storage: ^9.2.2
+  jwt_decoder: ^2.0.1
+  flutter_slidable: ^3.1.2
 
 dev_dependencies:
   flutter_test:

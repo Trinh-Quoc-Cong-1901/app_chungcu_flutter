@@ -1,143 +1,164 @@
 import 'package:flutter/material.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:ecogreen_city/services/data_service.dart';
 
 class OrderScreen extends StatefulWidget {
+  const OrderScreen({super.key});
+
   @override
   _OrderScreenState createState() => _OrderScreenState();
 }
 
 class _OrderScreenState extends State<OrderScreen> {
+  final DataService _dataService = DataService();
   late Future<List<dynamic>> _orders;
+
+  List<dynamic> orderedOrders = [];
+  List<dynamic> deliveredOrders = [];
 
   @override
   void initState() {
     super.initState();
-    _orders = fetchOrders();
+    _orders = _dataService.loadOrders();
   }
 
-  Future<List<dynamic>> fetchOrders() async {
-    final url = Uri.parse('http://localhost:3000/api/orders');
-    final response = await http.get(url);
-
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      if (data != null && data is List) {
-        return data;
-      } else {
-        return [];
-      }
-    } else {
-      throw Exception('Failed to load orders');
-    }
+  void _categorizeOrders(List<dynamic> orders) {
+    orderedOrders =
+        orders.where((order) => order['status'] == 'ordered').toList();
+    deliveredOrders =
+        orders.where((order) => order['status'] == 'delivered').toList();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Danh sách đơn hàng'),
+        title: const Text('Danh sách đơn hàng'),
         backgroundColor: Colors.teal,
       ),
       body: FutureBuilder<List<dynamic>>(
         future: _orders,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return Center(child: Text('Lỗi: ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text('Không tìm thấy đơn hàng'));
+            return const Center(child: Text('Không tìm thấy đơn hàng'));
           }
 
           final orders = snapshot.data!;
-          return ListView.builder(
-            itemCount: orders.length,
-            itemBuilder: (context, index) {
-              final order = orders[index];
-              return Card(
-                margin: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                elevation: 3,
-                child: Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Mã đơn hàng: ${order['orderId'] ?? 'N/A'}',
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 16),
-                          ),
-                          Text(
-                            '\$${order['totalAmount'] ?? '0.0'}',
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                                color: Colors.teal),
-                          ),
-                        ],
+          _categorizeOrders(orders);
+
+          return SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Danh sách ordered
+                if (orderedOrders.isNotEmpty) ...[
+                  const Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Text(
+                      'Đơn hàng đang xử lý:',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
                       ),
-                      SizedBox(height: 10),
-                      Text(
-                        'Ngày tạo: ${order['createdAt'] != null ? DateTime.parse(order['createdAt']).toLocal() : 'N/A'}',
-                        style: TextStyle(fontSize: 14, color: Colors.grey[700]),
-                      ),
-                      SizedBox(height: 10),
-                      Text(
-                        'Danh sách sản phẩm:',
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 14),
-                      ),
-                      SizedBox(height: 8),
-                      Column(
-                        children:
-                            (order['products'] ?? []).map<Widget>((product) {
-                          return Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(8),
-                                child: Image.network(
-                                  product['image'] ?? '',
-                                  height: 50,
-                                  width: 50,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) =>
-                                      Icon(Icons.broken_image, size: 50),
-                                ),
-                              ),
-                              SizedBox(width: 10),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      product['name'] ?? 'Tên sản phẩm',
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 14),
-                                    ),
-                                    Text(
-                                      '${product['quantity'] ?? 0} x \$${product['price'] ?? '0.0'}',
-                                      style: TextStyle(fontSize: 13),
-                                    ),
-                                  ],
-                                ),
-                              )
-                            ],
-                          );
-                        }).toList(),
-                      )
-                    ],
+                    ),
                   ),
-                ),
-              );
-            },
+                  ...orderedOrders.map((order) => _buildOrderCard(order)),
+                ],
+                // Danh sách delivered
+                if (deliveredOrders.isNotEmpty) ...[
+                  const Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Text(
+                      'Đơn hàng đã giao:',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  ...deliveredOrders.map((order) => _buildOrderCard(order)),
+                ],
+              ],
+            ),
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildOrderCard(Map<String, dynamic> order) {
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      elevation: 3,
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Mã đơn hàng: ${order['_id']}',
+              maxLines: 2,
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Tổng tiền: ${order['totalAmount']} VND',
+              style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  color: Colors.teal),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Ngày tạo: ${DateTime.parse(order['createdAt']).toLocal()}',
+              style: TextStyle(fontSize: 14, color: Colors.grey[700]),
+            ),
+            const SizedBox(height: 10),
+            const Text(
+              'Danh sách sản phẩm:',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+            ),
+            const SizedBox(height: 8),
+            ...order['products'].map<Widget>((product) {
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.network(
+                      product['image'] ?? 'assets/images/logo.png',
+                      height: 50,
+                      width: 50,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) =>
+                          const Icon(Icons.broken_image, size: 50),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          product['name'] ?? 'Tên sản phẩm',
+                          style: const TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 14),
+                        ),
+                        Text(
+                          '${product['quantity']} x \$${product['price']}',
+                          style: const TextStyle(fontSize: 13),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              );
+            }).toList(),
+          ],
+        ),
       ),
     );
   }

@@ -1,12 +1,12 @@
 // ignore_for_file: avoid_print
 
-import 'dart:convert'; // Để sử dụng jsonDecode
+import 'package:ecogreen_city/screens/home/components/notification_card.dart';
+import 'package:flutter/material.dart';
+import 'package:ecogreen_city/services/data_service.dart';
 import 'package:ecogreen_city/screens/account/account_screen.dart';
 import 'package:ecogreen_city/screens/home/home_screen.dart';
-import 'package:ecogreen_city/screens/notification/component/notification_item_widget.dart';
 import 'package:ecogreen_city/screens/stores/stores_screen.dart';
-import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'package:ecogreen_city/screens/notification/component/notification_item_widget.dart';
 
 import 'notification_detail_screen.dart';
 
@@ -14,12 +14,12 @@ class NotificationListScreen extends StatefulWidget {
   const NotificationListScreen({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
   _NotificationListScreenState createState() => _NotificationListScreenState();
 }
 
 class _NotificationListScreenState extends State<NotificationListScreen> {
-  var _selectedIndex = 0;
+  final DataService _dataService = DataService();
+  var _selectedIndex = 2;
   List<dynamic> notifications = [];
 
   @override
@@ -30,20 +30,12 @@ class _NotificationListScreenState extends State<NotificationListScreen> {
 
   Future<void> _loadNotifications() async {
     try {
-      final response =
-          await http.get(Uri.parse('http://localhost:3000/api/notifications/'));
-
-      if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(response.body);
-        setState(() {
-          notifications = data;
-        });
-      } else {
-        throw Exception('Failed to load notifications');
-      }
+      final data = await _dataService.loadNotifications(); // Gọi từ DataService
+      setState(() {
+        notifications = data;
+      });
     } catch (e) {
       print('Error fetching notifications: $e');
-      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Không thể tải thông báo.')),
       );
@@ -53,8 +45,8 @@ class _NotificationListScreenState extends State<NotificationListScreen> {
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
-      if (_selectedIndex != 4) {
-        Navigator.push(
+      if (_selectedIndex != 2) {
+        Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => getScreenForIndex(index)),
         );
@@ -68,8 +60,6 @@ class _NotificationListScreenState extends State<NotificationListScreen> {
         return const HomeScreen();
       case 1:
         return const StoresScreen();
-      case 2:
-        return const NotificationListScreen();
       case 3:
         return const AccountScreen();
       default:
@@ -82,6 +72,7 @@ class _NotificationListScreenState extends State<NotificationListScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Thông báo mới'),
+        backgroundColor: Colors.green,
       ),
       body: notifications.isEmpty
           ? const Center(child: CircularProgressIndicator())
@@ -97,17 +88,18 @@ class _NotificationListScreenState extends State<NotificationListScreen> {
                       MaterialPageRoute(
                         builder: (context) => NotificationDetailScreen(
                           title: notification['title'],
-                          time: notification['time'],
-                          content: notification['content'],
+                          time: notification[
+                              'createdAt'], // Dùng createdAt từ JSON
+                          content:
+                              'Thông tin chi tiết liên quan.', // Tuỳ chỉnh nội dung
                         ),
                       ),
                     );
                   },
-                  child: NotificationItemWidget(
-                    imageUrl: notification['imageUrl'],
+                  child: NotificationCardWidget(
                     title: notification['title'],
-                    timeAgo: notification['timeAgo'],
-                    sender: notification['sender'],
+                    createdAt: notification['createdAt'],
+                    isRead: notification['isRead'],
                   ),
                 );
               },
@@ -139,5 +131,10 @@ class _NotificationListScreenState extends State<NotificationListScreen> {
         ],
       ),
     );
+  }
+
+  String _formatDate(String dateTime) {
+    final date = DateTime.parse(dateTime);
+    return '${date.day}/${date.month}/${date.year} ${date.hour}:${date.minute}';
   }
 }

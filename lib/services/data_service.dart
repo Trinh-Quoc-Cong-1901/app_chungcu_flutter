@@ -1,0 +1,277 @@
+import 'dart:convert';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:http/http.dart' as http;
+import 'package:ecogreen_city/services/auth_service.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
+
+class DataService {
+  final AuthService _authService = AuthService();
+
+  Future<List<dynamic>> loadNotifications() async {
+    final token = await _authService.getAccessToken();
+    if (token == null) {
+      throw Exception('Token không tồn tại. Vui lòng đăng nhập lại.');
+    }
+
+    final response = await http.get(
+      Uri.parse('http://localhost:3000/api/notifications/'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else if (response.statusCode == 401) {
+      await _authService.refreshToken();
+      return loadNotifications(); // Thử lại
+    } else {
+      throw Exception('Failed to load notifications');
+    }
+  }
+
+  Future<List<dynamic>> loadFeedbacks() async {
+    final token = await _authService.getAccessToken();
+    if (token == null) {
+      throw Exception('Token không tồn tại. Vui lòng đăng nhập lại.');
+    }
+
+    final response = await http.get(
+      Uri.parse('http://localhost:3000/api/feedbacks/'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else if (response.statusCode == 401) {
+      await _authService.refreshToken();
+      return loadFeedbacks(); // Thử lại
+    } else {
+      throw Exception('Failed to load feedbacks');
+    }
+  }
+
+  Future<List<dynamic>> loadStores() async {
+    final token = await _authService.getAccessToken();
+    if (token == null) {
+      throw Exception('Token không tồn tại. Vui lòng đăng nhập lại.');
+    }
+
+    final response = await http.get(
+      Uri.parse('http://localhost:3000/api/stores/'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else if (response.statusCode == 401) {
+      await _authService.refreshToken();
+      return loadStores(); // Thử lại
+    } else {
+      throw Exception('Failed to load stores');
+    }
+  }
+
+  Future<List<dynamic>> loadFeeds() async {
+    final token = await _authService.getAccessToken();
+    if (token == null) {
+      throw Exception('Token không tồn tại. Vui lòng đăng nhập lại.');
+    }
+
+    final response = await http.get(
+      Uri.parse('http://localhost:3000/api/posts/'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else if (response.statusCode == 401) {
+      await _authService.refreshToken();
+      return loadFeeds(); // Thử lại
+    } else {
+      throw Exception('Failed to load feeds');
+    }
+  }
+
+  Future<List<dynamic>> loadBills() async {
+    final token = await _authService.getAccessToken();
+    if (token == null) {
+      throw Exception('Token không tồn tại. Vui lòng đăng nhập lại.');
+    }
+
+    final response = await http.get(
+      Uri.parse('http://localhost:3000/api/invoices/user'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else if (response.statusCode == 401) {
+      await _authService.refreshToken();
+      return loadBills(); // Thử lại
+    } else {
+      throw Exception('Failed to load bills');
+    }
+  }
+
+  // Thêm bài viết yêu thích
+  Future<void> likePost(String postId) async {
+    final token = await _authService.getAccessToken();
+    if (token == null) {
+      throw Exception('Token không tồn tại. Vui lòng đăng nhập lại.');
+    }
+
+    final response = await http.post(
+      Uri.parse('http://localhost:3000/api/posts/$postId/like'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to like post');
+    }
+  }
+
+  // Thêm bình luận vào bài viết
+  Future<void> addComment(String postId, String content) async {
+    final token = await _authService.getAccessToken();
+    if (token == null) {
+      throw Exception('Token không tồn tại. Vui lòng đăng nhập lại.');
+    }
+
+    final response = await http.post(
+      Uri.parse('http://localhost:3000/api/posts/$postId/comment'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({'content': content}),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to add comment');
+    }
+  }
+
+// order
+  Future<List<dynamic>> loadOrders() async {
+    final token = await _authService.getAccessToken();
+    if (token == null) {
+      throw Exception('Token không tồn tại. Vui lòng đăng nhập lại.');
+    }
+
+    final response = await http.get(
+      Uri.parse('http://localhost:3000/api/orders'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else if (response.statusCode == 401) {
+      await _authService.refreshToken();
+      return loadOrders(); // Thử lại
+    } else {
+      throw Exception('Failed to load orders');
+    }
+  }
+
+  //member
+  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
+
+  // Lấy token từ storage
+  Future<String?> getToken() async {
+    return await _secureStorage.read(key: 'accessToken');
+  }
+
+  // Lấy User ID từ token
+  Future<String> getUserIdFromToken() async {
+    final token = await getToken();
+    if (token == null) {
+      throw Exception('Token không tồn tại.');
+    }
+
+    final decodedToken = JwtDecoder.decode(token);
+    final userId =
+        decodedToken['_id']; // Thay 'id' bằng key tương ứng trong token
+    if (userId == null) {
+      throw Exception('Không thể lấy User ID từ token.');
+    }
+    return userId;
+  }
+
+  // Lưu token vào storage
+  Future<void> saveToken(String token) async {
+    await _secureStorage.write(key: 'accessToken', value: token);
+  }
+
+  // Xóa token khỏi storage
+  Future<void> deleteToken() async {
+    await _secureStorage.delete(key: 'accessToken');
+  }
+
+  // Lấy thông tin người dùng và danh sách thành viên
+  Future<Map<String, dynamic>> fetchUserData() async {
+    final userId = await getUserIdFromToken();
+
+    final response = await http.get(
+      Uri.parse('http://localhost:3000/api/users/$userId'),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception(
+          'Không thể tải thông tin người dùng: ${response.reasonPhrase}');
+    }
+  }
+
+  // Thêm thành viên mới
+  Future<void> addMember(String name, int age, String relation) async {
+    final userId = await getUserIdFromToken();
+
+    final response = await http.post(
+      Uri.parse('http://localhost:3000/api/members/$userId'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({"name": name, "age": age, "relation": relation}),
+    );
+
+    if (response.statusCode != 201) {
+      throw Exception('Không thể thêm thành viên: ${response.reasonPhrase}');
+    }
+  }
+
+  // Xóa thành viên
+  Future<void> deleteMember(String memberId) async {
+    final userId = await getUserIdFromToken();
+
+    final response = await http.delete(
+      Uri.parse('http://localhost:3000/api/members/$userId/$memberId'),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Không thể xóa thành viên: ${response.reasonPhrase}');
+    }
+  }
+}

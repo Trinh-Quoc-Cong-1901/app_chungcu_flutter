@@ -348,7 +348,7 @@ class _CartScreenState extends State<CartScreen> {
         'name': product['name'] ?? 'Unknown',
         'quantity': widget.productQuantities[product] ?? 0,
         'price': double.tryParse(product['price'] ?? '0') ?? 0.0,
-        'image': product['imageUrl'] ?? 'https://via.placeholder.com/150',
+        'image': 'https://via.placeholder.com/150',
       };
     }).toList();
 
@@ -497,8 +497,8 @@ class _CartScreenState extends State<CartScreen> {
                         ClipRRect(
                           borderRadius: BorderRadius.circular(10),
                           child: Image.network(
-                            product['imageUrl'] ??
-                                'https://via.placeholder.com/150',
+                            // product['imageUrl'] ??
+                            'https://via.placeholder.com/150',
                             width: 80,
                             height: 80,
                             fit: BoxFit.cover,

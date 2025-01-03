@@ -1,9 +1,7 @@
-import 'dart:convert';
-import 'package:ecogreen_city/screens/feed/feed_detail_screen.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:ecogreen_city/services/data_service.dart';
+import 'package:ecogreen_city/screens/feed/feed_detail_screen.dart';
 
 class FeedScreen extends StatefulWidget {
   const FeedScreen({super.key});
@@ -13,40 +11,24 @@ class FeedScreen extends StatefulWidget {
 }
 
 class _FeedScreenState extends State<FeedScreen> {
+  final DataService _dataService = DataService();
   List<dynamic> posts = [];
   bool isLoading = true;
-  String? userId;
 
   @override
   void initState() {
     super.initState();
-    _loadUserId(); // Lấy userId từ SharedPreferences
-    _fetchPosts(); // Gọi API để lấy danh sách bài viết
+    _fetchPosts();
   }
 
-  // Lấy userId từ SharedPreferences
-  Future<void> _loadUserId() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      userId = prefs.getString('userId'); // Lưu userId vào state
-    });
-  }
-
-  // Gọi API để lấy danh sách bài viết
+  // Gọi `DataService` để tải danh sách bài viết
   Future<void> _fetchPosts() async {
     try {
-      final response =
-          await http.get(Uri.parse('http://localhost:3000/api/posts/allPost'));
-
-      if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(response.body);
-        setState(() {
-          posts = data;
-          isLoading = false;
-        });
-      } else {
-        throw Exception('Failed to load posts');
-      }
+      final fetchedPosts = await _dataService.loadFeeds();
+      setState(() {
+        posts = fetchedPosts;
+        isLoading = false;
+      });
     } catch (e) {
       setState(() {
         isLoading = false;
@@ -59,25 +41,9 @@ class _FeedScreenState extends State<FeedScreen> {
 
   // Gửi yêu cầu like bài viết
   Future<void> _likePost(String postId) async {
-    if (userId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('User chưa đăng nhập')),
-      );
-      return;
-    }
-
     try {
-      final response = await http.post(
-        Uri.parse('http://localhost:3000/api/posts/$postId/like'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'userId': userId}),
-      );
-
-      if (response.statusCode == 200) {
-        _fetchPosts(); // Cập nhật lại danh sách bài viết sau khi like
-      } else {
-        throw Exception('Failed to like post');
-      }
+      await _dataService.likePost(postId);
+      _fetchPosts(); // Cập nhật lại danh sách bài viết sau khi like
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Không thể like bài viết: $e')),
@@ -87,25 +53,9 @@ class _FeedScreenState extends State<FeedScreen> {
 
   // Gửi yêu cầu thêm bình luận
   Future<void> _addComment(String postId, String content) async {
-    if (userId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('User chưa đăng nhập')),
-      );
-      return;
-    }
-
     try {
-      final response = await http.post(
-        Uri.parse('http://localhost:3000/api/posts/$postId/comment'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'userId': userId, 'content': content}),
-      );
-
-      if (response.statusCode == 200) {
-        _fetchPosts(); // Cập nhật lại danh sách bài viết sau khi comment
-      } else {
-        throw Exception('Failed to add comment');
-      }
+      await _dataService.addComment(postId, content);
+      _fetchPosts(); // Cập nhật lại danh sách bài viết sau khi comment
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Không thể thêm bình luận: $e')),
@@ -224,7 +174,7 @@ class _PostCardWidgetState extends State<PostCardWidget> {
                 ),
               ),
               const SizedBox(height: 10),
-              // Nội dung bài viết với "Xem thêm
+              // Nội dung bài viết với "Xem thêm"
               Text.rich(
                 TextSpan(
                   text: isExpanded

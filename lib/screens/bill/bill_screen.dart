@@ -1,20 +1,17 @@
-import 'dart:convert';
-
-import 'package:ecogreen_city/screens/bill/bill_payment_screen.dart';
-import 'package:ecogreen_city/screens/home/components/bill_card.dart';
 import 'package:flutter/material.dart';
-
-import 'package:http/http.dart' as http;
+import 'package:ecogreen_city/services/data_service.dart';
+import 'package:ecogreen_city/screens/bill/bill_detail_screen.dart';
+import 'package:ecogreen_city/screens/bill/bill_payment_screen.dart';
 
 class BillScreen extends StatefulWidget {
   const BillScreen({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
   _BillScreenState createState() => _BillScreenState();
 }
 
 class _BillScreenState extends State<BillScreen> {
+  final DataService _dataService = DataService();
   List<dynamic> unpaidBills = [];
   List<dynamic> paidBills = [];
 
@@ -24,41 +21,30 @@ class _BillScreenState extends State<BillScreen> {
     _loadBills();
   }
 
-  // String _getTotalAmount() {
-  //   double total = 0;
-  //   for (var bill in unpaidBills) {
-  //     String amountStr = bill['totalAmount'].replaceAll(RegExp(r'[^0-9]'), '');
-  //     total += double.parse(amountStr);
-  //   }
-  //   return '${total.toStringAsFixed(0)}đ';
-  // }
   String _getTotalAmount() {
     double total = 0;
     for (var bill in unpaidBills) {
-      // Lấy chuỗi số tiền và giữ lại phần thập phân
-      String amountStr = bill['totalAmount'].replaceAll(RegExp(r'[^\d.]'), '');
-      // Chuyển đổi chuỗi thành double và cộng dồn vào tổng
-      total += double.tryParse(amountStr) ?? 0;
+      final amount = double.tryParse(
+          bill['totalAmount'].replaceAll(RegExp(r'[^\d.]'), ''));
+      total += amount ?? 0;
     }
-    // Trả về kết quả định dạng 2 chữ số thập phân
     return '${total.toStringAsFixed(2)} USD';
   }
 
   Future<void> _loadBills() async {
-    final response =
-        await http.get(Uri.parse('http://localhost:3000/api/invoices'));
-
-    if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
+    try {
+      final bills = await _dataService.loadBills();
       setState(() {
         unpaidBills =
-            data.where((bill) => bill['status'] == "Chưa thanh toán").toList();
+            bills.where((bill) => bill['status'] == "Chưa thanh toán").toList();
         paidBills =
-            data.where((bill) => bill['status'] == "Đã thanh toán").toList();
+            bills.where((bill) => bill['status'] == "Đã thanh toán").toList();
       });
-    } else {
-      // Xử lý lỗi nếu cần
-      throw Exception('Failed to load invoices');
+    } catch (e) {
+      print('Error loading bills: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Không thể tải hóa đơn.')),
+      );
     }
   }
 
@@ -67,11 +53,13 @@ class _BillScreenState extends State<BillScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Danh sách hóa đơn'),
+        backgroundColor: Colors.green,
       ),
       body: unpaidBills.isEmpty && paidBills.isEmpty
           ? const Center(child: CircularProgressIndicator())
           : ListView(
               children: [
+                // Hóa đơn chưa thanh toán
                 if (unpaidBills.isNotEmpty) ...[
                   Padding(
                     padding: const EdgeInsets.all(16.0),
@@ -82,12 +70,55 @@ class _BillScreenState extends State<BillScreen> {
                     ),
                   ),
                   for (var bill in unpaidBills)
-                    BillCardWidget(
-                      title: bill['title'],
-                      totalAmount: bill['totalAmount'],
-                      paymentPeriod: bill['paymentPeriod'],
-                      isPaid: bill['isPaid'],
-                      billData: bill,
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => BillDetailScreen(
+                              billData: bill,
+                            ),
+                          ),
+                        );
+                      },
+                      child: Card(
+                        margin: const EdgeInsets.all(8.0),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                bill['title'],
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Hạn thanh toán: ${bill['paymentDueDate']}',
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                '${bill['totalAmount']} USD',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.green,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     ),
                   Padding(
                     padding: const EdgeInsets.all(16.0),
@@ -100,7 +131,7 @@ class _BillScreenState extends State<BillScreen> {
                               fontSize: 16, fontWeight: FontWeight.bold),
                         ),
                         Text(
-                          unpaidBills.isNotEmpty ? _getTotalAmount() : '0USD',
+                          _getTotalAmount(),
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -117,7 +148,6 @@ class _BillScreenState extends State<BillScreen> {
                                 ),
                               ),
                             );
-                            // Xử lý thanh toán ở đây
                           },
                           child: const Text('Thanh toán'),
                         ),
@@ -125,6 +155,7 @@ class _BillScreenState extends State<BillScreen> {
                     ),
                   ),
                 ],
+                // Hóa đơn đã thanh toán
                 if (paidBills.isNotEmpty) ...[
                   Padding(
                     padding: const EdgeInsets.all(16.0),
@@ -135,12 +166,55 @@ class _BillScreenState extends State<BillScreen> {
                     ),
                   ),
                   for (var bill in paidBills)
-                    BillCardWidget(
-                      title: bill['title'],
-                      totalAmount: bill['totalAmount'],
-                      paymentPeriod: bill['paymentPeriod'],
-                      isPaid: bill['isPaid'],
-                      billData: bill,
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => BillDetailScreen(
+                              billData: bill,
+                            ),
+                          ),
+                        );
+                      },
+                      child: Card(
+                        margin: const EdgeInsets.all(8.0),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                bill['title'],
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Ngày thanh toán: ${bill['paymentDueDate']}',
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                '${bill['totalAmount']} USD',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.green,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     ),
                 ],
               ],

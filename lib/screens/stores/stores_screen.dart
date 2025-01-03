@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:ecogreen_city/services/data_service.dart';
 import 'detail_store_screen.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 
 class StoresScreen extends StatefulWidget {
   const StoresScreen({super.key});
@@ -11,6 +10,7 @@ class StoresScreen extends StatefulWidget {
 }
 
 class _StoresScreenState extends State<StoresScreen> {
+  final DataService _dataService = DataService();
   String searchQuery = "";
   List<dynamic> stores = [];
   bool isLoading = true;
@@ -23,23 +23,17 @@ class _StoresScreenState extends State<StoresScreen> {
 
   Future<void> _loadStores() async {
     try {
-      final response =
-          await http.get(Uri.parse('http://localhost:3000/api/stores'));
-      if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(response.body);
-        setState(() {
-          stores = data;
-          isLoading = false;
-        });
-      } else {
-        throw Exception('Failed to load stores');
-      }
+      final data = await _dataService.loadStores();
+      setState(() {
+        stores = data;
+        isLoading = false;
+      });
     } catch (e) {
       setState(() {
         isLoading = false;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Không thể tải danh sách cửa hàng.')),
+        SnackBar(content: Text('Không thể tải danh sách cửa hàng: $e')),
       );
     }
   }
@@ -66,6 +60,7 @@ class _StoresScreenState extends State<StoresScreen> {
           ),
         ),
         centerTitle: true,
+        backgroundColor: Colors.green,
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -95,7 +90,7 @@ class _StoresScreenState extends State<StoresScreen> {
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(15),
                             ),
-                            elevation: 5,
+                            elevation: 3,
                             margin: const EdgeInsets.symmetric(vertical: 10),
                             child: Padding(
                               padding: const EdgeInsets.all(10.0),
@@ -109,6 +104,14 @@ class _StoresScreenState extends State<StoresScreen> {
                                       width: 80,
                                       height: 80,
                                       fit: BoxFit.cover,
+                                      errorBuilder:
+                                          (context, error, stackTrace) {
+                                        return const Icon(
+                                          Icons.store,
+                                          size: 80,
+                                          color: Colors.grey,
+                                        );
+                                      },
                                     ),
                                   ),
                                   const SizedBox(width: 10),
@@ -147,13 +150,10 @@ class _StoresScreenState extends State<StoresScreen> {
                                       ],
                                     ),
                                   ),
-                                  Align(
-                                    alignment: Alignment.center,
-                                    child: Icon(
-                                      Icons.arrow_forward_ios,
-                                      color: Colors.green,
-                                      size: 28,
-                                    ),
+                                  const Icon(
+                                    Icons.arrow_forward_ios,
+                                    color: Colors.green,
+                                    size: 28,
                                   ),
                                 ],
                               ),
