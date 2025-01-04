@@ -194,42 +194,10 @@ class DataService {
   }
 
   //member
-  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
-
-  // Lấy token từ storage
-  Future<String?> getToken() async {
-    return await _secureStorage.read(key: 'accessToken');
-  }
-
-  // Lấy User ID từ token
-  Future<String> getUserIdFromToken() async {
-    final token = await getToken();
-    if (token == null) {
-      throw Exception('Token không tồn tại.');
-    }
-
-    final decodedToken = JwtDecoder.decode(token);
-    final userId =
-        decodedToken['_id']; // Thay 'id' bằng key tương ứng trong token
-    if (userId == null) {
-      throw Exception('Không thể lấy User ID từ token.');
-    }
-    return userId;
-  }
-
-  // Lưu token vào storage
-  Future<void> saveToken(String token) async {
-    await _secureStorage.write(key: 'accessToken', value: token);
-  }
-
-  // Xóa token khỏi storage
-  Future<void> deleteToken() async {
-    await _secureStorage.delete(key: 'accessToken');
-  }
-
-  // Lấy thông tin người dùng và danh sách thành viên
+  // Lấy thông tin người dùng
   Future<Map<String, dynamic>> fetchUserData() async {
-    final userId = await getUserIdFromToken();
+    final userId = await _authService.getUserId();
+    if (userId == null) throw Exception('Không thể lấy thông tin userId.');
 
     final response = await http.get(
       Uri.parse('http://localhost:3000/api/users/$userId'),
@@ -244,15 +212,15 @@ class DataService {
     }
   }
 
-  // Thêm thành viên mới
+  // Thêm thành viên
   Future<void> addMember(String name, int age, String relation) async {
-    final userId = await getUserIdFromToken();
+    final userId = await _authService.getUserId();
+    if (userId == null)
+      throw Exception('Không thể thêm thành viên, User ID không tồn tại.');
 
     final response = await http.post(
       Uri.parse('http://localhost:3000/api/members/$userId'),
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: {'Content-Type': 'application/json'},
       body: jsonEncode({"name": name, "age": age, "relation": relation}),
     );
 
@@ -263,7 +231,9 @@ class DataService {
 
   // Xóa thành viên
   Future<void> deleteMember(String memberId) async {
-    final userId = await getUserIdFromToken();
+    final userId = await _authService.getUserId();
+    if (userId == null)
+      throw Exception('Không thể xóa thành viên, User ID không tồn tại.');
 
     final response = await http.delete(
       Uri.parse('http://localhost:3000/api/members/$userId/$memberId'),
@@ -274,4 +244,57 @@ class DataService {
       throw Exception('Không thể xóa thành viên: ${response.reasonPhrase}');
     }
   }
+  //chat
+
+  // API lấy danh sách tin nhắn giữa user và admin
+  Future<List<dynamic>> getChats() async {
+    final token = await _authService.getAccessToken();
+    if (token == null) throw Exception('Token không tồn tại.');
+
+    final response = await http.get(
+      Uri.parse('http://localhost:3000/api/chats/user'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else if (response.statusCode == 401) {
+      await _authService.refreshToken();
+      return getChats(); // Thử lại nếu token hết hạn
+    } else {
+      throw Exception(
+          'Không thể tải danh sách tin nhắn: ${response.reasonPhrase}');
+    }
+  }
+
+  // API gửi tin nhắn từ user đến admin
+  Future<void> sendMessageToAdmin(String messageContent) async {
+    final token = await _authService.getAccessToken();
+    if (token == null) throw Exception('Token không tồn tại.');
+
+    const String receiverId =
+        "6772d520283504d8284faf56"; // ID cố định của admin
+
+    final messageData = {
+      'receiverId': receiverId,
+      'message': messageContent,
+    };
+
+    final response = await http.post(
+      Uri.parse('http://localhost:3000/api/chats'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode(messageData),
+    );
+
+    if (response.statusCode != 201) {
+      throw Exception('Không thể gửi tin nhắn: ${response.reasonPhrase}');
+    }
+  }
 }
+//chat

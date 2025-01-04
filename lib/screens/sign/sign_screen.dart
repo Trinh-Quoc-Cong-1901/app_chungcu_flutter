@@ -1,13 +1,12 @@
 import 'dart:convert';
-import 'package:ecogreen_city/screens/home/home2_screen.dart';
-import 'package:flutter/material.dart';
-import 'package:ecogreen_city/services/auth_service.dart';
-import 'package:http/http.dart' as http;
 import 'package:ecogreen_city/components/app_colors/app_colors.dart';
 import 'package:ecogreen_city/components/app_style/app_style.dart';
 import 'package:ecogreen_city/components/custom_button/custom_button.dart';
 import 'package:ecogreen_city/components/custom_button/custom_textfield.dart';
 import 'package:ecogreen_city/screens/home/home_screen.dart';
+import 'package:ecogreen_city/services/auth_service.dart';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
@@ -54,7 +53,7 @@ class _SignInScreenState extends State<SignInScreen> {
         await _authService.saveLoginData(
           accessToken: responseData['accessToken'],
           refreshToken: responseData['refreshToken'],
-          user: responseData['user']['id'],
+          userId: responseData['user']['id'],
         );
 
         // Chuyển đến HomeScreen
@@ -95,6 +94,15 @@ class _SignInScreenState extends State<SignInScreen> {
             _buildHeader(widthRatio, heightRatio),
             SizedBox(height: 10 * heightRatio),
             _buildForm(widthRatio, heightRatio),
+            if (_errorText != null)
+              Padding(
+                padding: EdgeInsets.all(16 * widthRatio),
+                child: Text(
+                  _errorText!,
+                  style:
+                      TextStyle(color: Colors.red, fontSize: 14 * heightRatio),
+                ),
+              ),
           ],
         ),
       ),
@@ -118,10 +126,8 @@ class _SignInScreenState extends State<SignInScreen> {
 
   Widget _buildForm(double widthRatio, double heightRatio) {
     return Container(
-      height: 321 * heightRatio,
-      padding: EdgeInsets.symmetric(
-        horizontal: 17 * widthRatio,
-      ),
+      height: 360 * heightRatio,
+      padding: EdgeInsets.symmetric(horizontal: 17 * widthRatio),
       decoration: const BoxDecoration(
         color: AppColors.whiteColor,
         borderRadius: BorderRadius.only(
@@ -134,10 +140,11 @@ class _SignInScreenState extends State<SignInScreen> {
         children: [
           SizedBox(height: 25 * heightRatio),
           _buildEmailField(heightRatio),
-          SizedBox(height: 29 * heightRatio),
+          SizedBox(height: 20 * heightRatio),
           _buildPasswordField(heightRatio),
+          SizedBox(height: 15 * heightRatio),
           _buildForgotPassword(heightRatio),
-          SizedBox(height: 33 * heightRatio),
+          SizedBox(height: 30 * heightRatio),
           _buildSignInButton(heightRatio),
         ],
       ),
@@ -149,7 +156,7 @@ class _SignInScreenState extends State<SignInScreen> {
       height: heightRatio * 58,
       controller: _emailController,
       labelText: 'Email',
-      hintText: 'Email',
+      hintText: 'Nhập email của bạn',
       iconRight: Image.asset(
         'assets/images/icon_email.png',
         scale: 2,
@@ -161,7 +168,6 @@ class _SignInScreenState extends State<SignInScreen> {
               : (_isValidEmail(value) ? null : 'Email không hợp lệ');
         });
       },
-      errorText: _errorText,
     );
   }
 
@@ -170,7 +176,7 @@ class _SignInScreenState extends State<SignInScreen> {
       height: heightRatio * 58,
       controller: _passwordController,
       labelText: 'Password',
-      hintText: 'Password',
+      hintText: 'Nhập mật khẩu của bạn',
       isPassword: true,
     );
   }
@@ -179,9 +185,11 @@ class _SignInScreenState extends State<SignInScreen> {
     return Align(
       alignment: Alignment.centerRight,
       child: TextButton(
-        onPressed: () {},
+        onPressed: () {
+          // Logic quên mật khẩu
+        },
         child: Text(
-          "Forgot password?",
+          'Quên mật khẩu?',
           style: AppStyles.baseTextStyle.copyWith(
             fontSize: 12 * heightRatio,
             color: AppColors.blackColor,
@@ -196,11 +204,11 @@ class _SignInScreenState extends State<SignInScreen> {
       child: CustomButton(
         height: 58 * heightRatio,
         onTap: _isLoading ? null : _signIn,
-        enable: true,
+        enable: !_isLoading,
         child: _isLoading
             ? const CircularProgressIndicator()
             : Text(
-                'Sign In',
+                'Đăng Nhập',
                 style: AppStyles.baseTextStyle.copyWith(
                   fontSize: 18 * heightRatio,
                   color: AppColors.whiteColor,
@@ -211,6 +219,6 @@ class _SignInScreenState extends State<SignInScreen> {
   }
 
   bool _isValidEmail(String email) {
-    return RegExp(r'^[a-zA-Z0-9._]+@[a-zA-Z0-9]+\.[a-zA-Z]+').hasMatch(email);
+    return RegExp(r'^[a-zA-Z0-9._]+@[a-zA-Z0-9]+\.[a-zA-Z]+$').hasMatch(email);
   }
 }
