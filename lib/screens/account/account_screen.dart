@@ -18,13 +18,13 @@ class AccountScreen extends StatefulWidget {
 }
 
 class _AccountScreenState extends State<AccountScreen> {
-  int _selectedIndex = 0; // Bắt đầu từ mục Tài khoản
+  int _selectedIndex = 3; // Bắt đầu từ mục Tài khoản
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
       if (_selectedIndex != 4) {
-        Navigator.push(
+        Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => getScreenForIndex(index)),
         );
@@ -97,8 +97,8 @@ class _AccountScreenState extends State<AccountScreen> {
             leading: const CircleAvatar(
               backgroundImage: AssetImage('assets/images/home_id_logo.png'),
             ),
-            title: const Text('Trịnh Như Quỳnh'),
-            subtitle: const Text('0971793348'),
+            title: const Text('Trịnh Quốc Công'),
+            subtitle: const Text('0123456789'),
             onTap: () {},
           ),
           const Divider(),

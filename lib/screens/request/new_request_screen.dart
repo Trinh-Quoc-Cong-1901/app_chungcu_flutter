@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:dotted_border/dotted_border.dart';
+import 'package:ecogreen_city/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
@@ -19,10 +20,12 @@ class _NewFeedbackScreenState extends State<NewFeedbackScreen> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _contentController = TextEditingController();
   String? _selectedPriority;
+  String? _userId;
   final List<String> _priorities = ['Thấp', 'Trung bình', 'Cao'];
   List<XFile> _imageFiles = [];
-  String? _userId;
+
   String? _token;
+  final AuthService _authService = AuthService();
 
   @override
   void initState() {
@@ -31,10 +34,12 @@ class _NewFeedbackScreenState extends State<NewFeedbackScreen> {
   }
 
   Future<void> _loadUserData() async {
-    final prefs = await SharedPreferences.getInstance();
+    final userId = await _authService.getUserId();
+    final token = await _authService.getAccessToken();
+
     setState(() {
-      _userId = prefs.getString('userId');
-      _token = prefs.getString('accessToken');
+      _userId = userId;
+      _token = token;
     });
   }
 

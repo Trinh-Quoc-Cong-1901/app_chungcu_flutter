@@ -15,16 +15,14 @@ import 'package:ecogreen_city/screens/home/components/icon_button_with_badge.dar
 import 'package:ecogreen_city/screens/home/components/notification_card.dart';
 import 'package:ecogreen_city/screens/home/components/section_header.dart';
 import 'package:ecogreen_city/screens/hot_line/hot_line_screen.dart';
-import 'package:ecogreen_city/screens/notification/notification_detail_screen.dart';
+
 import 'package:ecogreen_city/screens/notification/notification_screen.dart';
 import 'package:ecogreen_city/screens/request/request_screen.dart';
 import 'package:ecogreen_city/screens/stores/stores_screen.dart';
-import 'package:ecogreen_city/services/auth_service.dart';
+
 import 'package:ecogreen_city/services/data_service.dart';
-import 'package:flutter/foundation.dart';
+
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:http/http.dart' as http;
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -43,7 +41,7 @@ class _HomeScreenState extends State<HomeScreen> {
       // Ở đây bạn có thể điều hướng tới các trang khác, ví dụ như Trang chủ, Tiện ích, Thông báo
       if (_selectedIndex != 4) {
         // Điều hướng tới các trang khác ngoài Tài khoản
-        Navigator.push(
+        Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => getScreenForIndex(index)),
         );
@@ -133,41 +131,6 @@ class _HomeScreenState extends State<HomeScreen> {
     return '${total.toStringAsFixed(2)} USD';
   }
 
-  // void _navigateToDetail(Map<String, dynamic> notification) {
-  //   final String type = notification['type'];
-  //   final String relatedId = notification['relatedId'];
-
-  //   switch (type) {
-  //     case 'order':
-  //       Navigator.push(
-  //         context,
-  //         MaterialPageRoute(
-  //           builder: (context) => OrderDetailScreen(orderId: relatedId),
-  //         ),
-  //       );
-  //       break;
-  //     case 'feedback':
-  //       Navigator.push(
-  //         context,
-  //         MaterialPageRoute(
-  //           builder: (context) => FeedbackDetailScreen(feedbackId: relatedId),
-  //         ),
-  //       );
-  //       break;
-  //     case 'invoice':
-  //       Navigator.push(
-  //         context,
-  //         MaterialPageRoute(
-  //           builder: (context) => InvoiceDetailScreen(invoiceId: relatedId),
-  //         ),
-  //       );
-  //       break;
-  //     default:
-  //       // Xử lý nếu type không khớp
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         const SnackBar(content: Text('Không thể mở chi tiết thông báo.')),
-  //       );
-  //   }
   // }
 
   @override
@@ -188,11 +151,11 @@ class _HomeScreenState extends State<HomeScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Trịnh Như Quỳnh',
+                  'Trịnh Quốc Công',
                   style: TextStyle(color: Colors.black, fontSize: 16),
                 ),
                 Text(
-                  'CT4.12A10, Eco Green City',
+                  'CT4.12A20, Eco Green City',
                   style: TextStyle(color: Colors.black54, fontSize: 12),
                 ),
                 Text(
@@ -250,7 +213,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     title: 'Chat BQL',
                     icon: Icons.chat,
                     color: Colors.green,
-                    badgeCount: 3, // Hiển thị 3 thông báo chưa đọc
+                    // badgeCount: 3, // Hiển thị 3 thông báo chưa đọc
                     destination:
                         ChatAdminScreen(), // Thay thế bằng màn hình Chat BQL
                   ),
@@ -419,7 +382,7 @@ class _HomeScreenState extends State<HomeScreen> {
             Column(
               children: [
                 SectionHeaderWidget(
-                    title: 'BẢNG TIN TOÀ NHÀ',
+                    title: 'Bảng tin toà nhà',
                     onViewAll: () {
                       Navigator.push(
                         context,

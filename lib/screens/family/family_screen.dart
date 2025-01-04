@@ -141,7 +141,13 @@ class _FamilyScreenState extends State<FamilyScreen> {
                         child: ListTile(
                           leading: const Icon(Icons.home, size: 40),
                           title: Text(userData?['name'] ?? 'Không rõ'),
-                          subtitle: Text('Chủ hộ'),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Tuổi: ${userData?['age']}'),
+                              Text('Quan hệ: Chủ hộ'),
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -155,7 +161,7 @@ class _FamilyScreenState extends State<FamilyScreen> {
                                 final member = members[index];
                                 return Card(
                                   margin: const EdgeInsets.symmetric(
-                                      horizontal: 10, vertical: 5),
+                                      horizontal: 16, vertical: 5),
                                   child: ListTile(
                                     leading: const Icon(Icons.person, size: 50),
                                     title: Text(member['name']),

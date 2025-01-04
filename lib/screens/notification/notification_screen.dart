@@ -6,7 +6,6 @@ import 'package:ecogreen_city/services/data_service.dart';
 import 'package:ecogreen_city/screens/account/account_screen.dart';
 import 'package:ecogreen_city/screens/home/home_screen.dart';
 import 'package:ecogreen_city/screens/stores/stores_screen.dart';
-import 'package:ecogreen_city/screens/notification/component/notification_item_widget.dart';
 
 import 'notification_detail_screen.dart';
 
@@ -133,6 +132,7 @@ class _NotificationListScreenState extends State<NotificationListScreen> {
     );
   }
 
+  // ignore: unused_element
   String _formatDate(String dateTime) {
     final date = DateTime.parse(dateTime);
     return '${date.day}/${date.month}/${date.year} ${date.hour}:${date.minute}';

@@ -4,7 +4,8 @@ class SectionHeaderWidget extends StatelessWidget {
   final String title;
   final VoidCallback onViewAll;
 
-  const SectionHeaderWidget({super.key, required this.title, required this.onViewAll});
+  const SectionHeaderWidget(
+      {super.key, required this.title, required this.onViewAll});
 
   @override
   Widget build(BuildContext context) {
@@ -15,11 +16,12 @@ class SectionHeaderWidget extends StatelessWidget {
         children: [
           Text(
             title,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
           ),
           TextButton(
             onPressed: onViewAll,
-            child: const Text('Xem tất cả', style: TextStyle(color: Colors.blue)),
+            child: const Text('Xem tất cả',
+                style: TextStyle(color: Colors.blue, fontSize: 16)),
           ),
         ],
       ),

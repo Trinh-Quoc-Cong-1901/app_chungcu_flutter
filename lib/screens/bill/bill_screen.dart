@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ecogreen_city/services/data_service.dart';
 import 'package:ecogreen_city/screens/bill/bill_detail_screen.dart';
 import 'package:ecogreen_city/screens/bill/bill_payment_screen.dart';
+import 'package:intl/intl.dart';
 
 class BillScreen extends StatefulWidget {
   const BillScreen({super.key});
@@ -24,11 +25,15 @@ class _BillScreenState extends State<BillScreen> {
   String _getTotalAmount() {
     double total = 0;
     for (var bill in unpaidBills) {
+      // Lấy giá trị số tiền và loại bỏ các ký tự không phải số
       final amount = double.tryParse(
           bill['totalAmount'].replaceAll(RegExp(r'[^\d.]'), ''));
       total += amount ?? 0;
     }
-    return '${total.toStringAsFixed(2)} USD';
+
+    // Sử dụng NumberFormat để định dạng số
+    final formatter = NumberFormat('#,###');
+    return '${formatter.format(total)} VND';
   }
 
   Future<void> _loadBills() async {
@@ -108,7 +113,7 @@ class _BillScreenState extends State<BillScreen> {
                               ),
                               const SizedBox(height: 8),
                               Text(
-                                '${bill['totalAmount']} USD',
+                                '${NumberFormat("#,###").format(double.parse(bill['totalAmount']))} VND',
                                 style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
@@ -179,6 +184,7 @@ class _BillScreenState extends State<BillScreen> {
                       },
                       child: Card(
                         margin: const EdgeInsets.all(8.0),
+                        color: Colors.green.shade100,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10.0),
                         ),
@@ -197,14 +203,14 @@ class _BillScreenState extends State<BillScreen> {
                               const SizedBox(height: 8),
                               Text(
                                 'Ngày thanh toán: ${bill['paymentDueDate']}',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 14,
-                                  color: Colors.grey,
+                                  // color: Colors.grey[600],
                                 ),
                               ),
                               const SizedBox(height: 8),
                               Text(
-                                '${bill['totalAmount']} USD',
+                                '${NumberFormat("#,###").format(double.parse(bill['totalAmount']))} VND',
                                 style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,

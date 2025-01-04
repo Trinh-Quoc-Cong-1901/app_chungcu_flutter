@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'bill_payment_screen.dart'; // Import màn hình thanh toán hóa đơn
 
 class BillDetailScreen extends StatelessWidget {
@@ -23,8 +24,10 @@ class BillDetailScreen extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text('Title: ${billData['title']}'),
-            Text('Tổng tiền: ${billData['totalAmount']}'),
-            Text('Hạn đóng tiền: ${billData['time']}'),
+            Text(
+              'Tổng tiền: ${NumberFormat('#,###').format(double.tryParse(billData['totalAmount'].replaceAll(RegExp(r'[^\d.]'), '')) ?? 0)} VND',
+            ),
+            Text('Hạn đóng tiền: ${billData['paymentDueDate']}'),
             const SizedBox(height: 16),
             for (var serviceFee in billData['serviceFees'])
               Card(
@@ -33,7 +36,12 @@ class BillDetailScreen extends StatelessWidget {
                   title: Text(serviceFee['name']),
                   subtitle: Text(serviceFee['details']),
                   trailing: Text(
-                    '${serviceFee['amount']} USD',
+                    '${NumberFormat('#,###').format(double.tryParse(serviceFee['amount'].replaceAll(RegExp(r'[^\d.]'), '')) ?? 0)} VND',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.green,
+                    ),
                   ),
                 ),
               ),

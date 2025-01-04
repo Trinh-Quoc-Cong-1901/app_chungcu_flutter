@@ -1,3 +1,6 @@
+import 'package:ecogreen_city/screens/account/account_screen.dart';
+import 'package:ecogreen_city/screens/home/home_screen.dart';
+import 'package:ecogreen_city/screens/notification/notification_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:ecogreen_city/services/data_service.dart';
 import 'detail_store_screen.dart';
@@ -10,6 +13,36 @@ class StoresScreen extends StatefulWidget {
 }
 
 class _StoresScreenState extends State<StoresScreen> {
+  int _selectedIndex = 1; // Bắt đầu từ mục Tài khoản
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+      if (_selectedIndex != 4) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => getScreenForIndex(index)),
+        );
+      }
+    });
+  }
+
+  // Hàm này trả về màn hình phù hợp với chỉ số được chọn
+  Widget getScreenForIndex(int index) {
+    switch (index) {
+      case 0:
+        return const HomeScreen();
+      case 1:
+        return const StoresScreen();
+      case 2:
+        return const NotificationListScreen();
+      case 3:
+        return const AccountScreen();
+      default:
+        return const StoresScreen();
+    }
+  }
+
   final DataService _dataService = DataService();
   String searchQuery = "";
   List<dynamic> stores = [];
@@ -163,6 +196,32 @@ class _StoresScreenState extends State<StoresScreen> {
                       },
                     ),
             ),
+      bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: Colors.green,
+        selectedItemColor: Colors.white,
+        unselectedItemColor: Colors.black54,
+        type: BottomNavigationBarType.fixed,
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Nhà của tôi',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: 'Tiện ích',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.notifications),
+            label: 'Thông báo',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Tài khoản',
+          ),
+        ],
+      ),
     );
   }
 }
