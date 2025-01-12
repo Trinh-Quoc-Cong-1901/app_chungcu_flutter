@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:ecogreen_city/screens/account/account_screen.dart';
 import 'package:ecogreen_city/screens/bill/bill_detail_screen.dart';
@@ -23,6 +22,7 @@ import 'package:ecogreen_city/screens/stores/stores_screen.dart';
 import 'package:ecogreen_city/services/data_service.dart';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -127,8 +127,10 @@ class _HomeScreenState extends State<HomeScreen> {
       // Chuyển đổi chuỗi thành double và cộng dồn vào tổng
       total += double.tryParse(amountStr) ?? 0;
     }
-    // Trả về kết quả định dạng 2 chữ số thập phân
-    return '${total.toStringAsFixed(2)} USD';
+    // Định dạng số tiền theo tiền tệ Việt Nam (VND)
+    final formattedTotal =
+        NumberFormat.currency(locale: 'vi_VN', symbol: 'VND').format(total);
+    return formattedTotal;
   }
 
   // }

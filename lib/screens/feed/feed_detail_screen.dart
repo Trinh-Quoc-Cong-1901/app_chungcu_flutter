@@ -12,7 +12,6 @@ class FeedDetailScreen extends StatefulWidget {
   State<FeedDetailScreen> createState() => _FeedDetailScreenState();
 }
 
-
 class _FeedDetailScreenState extends State<FeedDetailScreen> {
   bool showComments = false; // Trạng thái hiển thị bình luận
   final TextEditingController commentController = TextEditingController();
@@ -48,7 +47,7 @@ class _FeedDetailScreenState extends State<FeedDetailScreen> {
       // Gửi bình luận qua API
       final response = await http.post(
         Uri.parse(
-            'http://localhost:3000/api/posts/${widget.post['_id']}/comment'),
+            'http://192.168.1.4:3000/api/posts/${widget.post['_id']}/comment'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'userId': userId,
@@ -90,7 +89,7 @@ class _FeedDetailScreenState extends State<FeedDetailScreen> {
 //   try {
 //     final response = await http.post(
 //       Uri.parse(
-//           'http://localhost:3000/api/posts/${widget.post['_id']}/comment'),
+//           'http://192.168.1.4:3000/api/posts/${widget.post['_id']}/comment'),
 //       headers: {'Content-Type': 'application/json'},
 //       body: jsonEncode({
 //         'userId': userId,

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:ecogreen_city/services/data_service.dart';
+import 'order_detail_screen.dart';
 
 class OrderScreen extends StatefulWidget {
   const OrderScreen({super.key});
@@ -26,6 +28,19 @@ class _OrderScreenState extends State<OrderScreen> {
         orders.where((order) => order['status'] == 'ordered').toList();
     deliveredOrders =
         orders.where((order) => order['status'] == 'delivered').toList();
+  }
+
+  String _formatCurrency(double amount) {
+    return NumberFormat.currency(locale: 'vi_VN', symbol: 'VND').format(amount);
+  }
+
+  void _navigateToOrderDetail(Map<String, dynamic> order) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => OrderDetailScreen(orderData: order),
+      ),
+    );
   }
 
   @override
@@ -65,7 +80,10 @@ class _OrderScreenState extends State<OrderScreen> {
                       ),
                     ),
                   ),
-                  ...orderedOrders.map((order) => _buildOrderCard(order)),
+                  ...orderedOrders.map((order) => GestureDetector(
+                        onTap: () => _navigateToOrderDetail(order),
+                        child: _buildOrderCard(order),
+                      )),
                 ],
                 // Danh sách delivered
                 if (deliveredOrders.isNotEmpty) ...[
@@ -79,7 +97,10 @@ class _OrderScreenState extends State<OrderScreen> {
                       ),
                     ),
                   ),
-                  ...deliveredOrders.map((order) => _buildOrderCard(order)),
+                  ...deliveredOrders.map((order) => GestureDetector(
+                        onTap: () => _navigateToOrderDetail(order),
+                        child: _buildOrderCard(order),
+                      )),
                 ],
               ],
             ),
@@ -105,7 +126,7 @@ class _OrderScreenState extends State<OrderScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Tổng tiền: ${order['totalAmount']} VND',
+              'Tổng tiền: ${_formatCurrency(order['totalAmount']?.toDouble() ?? 0)}',
               style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
@@ -113,7 +134,7 @@ class _OrderScreenState extends State<OrderScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Ngày tạo: ${DateTime.parse(order['createdAt']).toLocal()}',
+              'Ngày tạo: ${DateFormat('dd/MM/yyyy HH:mm').format(DateTime.parse(order['createdAt']).toLocal())}',
               style: TextStyle(fontSize: 14, color: Colors.grey[700]),
             ),
             const SizedBox(height: 10),
@@ -148,7 +169,7 @@ class _OrderScreenState extends State<OrderScreen> {
                               fontWeight: FontWeight.bold, fontSize: 14),
                         ),
                         Text(
-                          '${product['quantity']} x \$${product['price']}',
+                          '${product['quantity']} x ${_formatCurrency(product['price']?.toDouble() ?? 0)}',
                           style: const TextStyle(fontSize: 13),
                         ),
                       ],

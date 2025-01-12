@@ -53,7 +53,7 @@ class _AccountScreenState extends State<AccountScreen> {
     try {
       final response = await http.post(
         Uri.parse(
-            'http://localhost:3000/api/token/logout'), // Thay URL bằng URL của API thực tế
+            'http://192.168.1.4:3000/api/token/logout'), // Thay URL bằng URL của API thực tế
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'refreshToken':

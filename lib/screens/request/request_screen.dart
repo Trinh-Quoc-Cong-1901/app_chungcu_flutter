@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:ecogreen_city/screens/request/new_request_screen.dart';
+import 'package:ecogreen_city/screens/request/request_detail_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'components/request_card.dart';
@@ -29,7 +30,7 @@ class _RequestScreenState extends State<RequestScreen> {
   Future<void> _fetchRequests() async {
     try {
       final response =
-          await http.get(Uri.parse('http://localhost:3000/api/feedbacks'));
+          await http.get(Uri.parse('http://192.168.1.4:3000/api/feedbacks'));
 
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);
@@ -66,6 +67,15 @@ class _RequestScreenState extends State<RequestScreen> {
         return matchesStatus && matchesPriority;
       }).toList();
     });
+  }
+
+  void _navigateToRequestDetail(Map<String, dynamic> requestData) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => RequestDetailScreen(requestData: requestData),
+      ),
+    );
   }
 
   @override
@@ -132,7 +142,11 @@ class _RequestScreenState extends State<RequestScreen> {
                 : ListView.builder(
                     itemCount: filteredRequests.length,
                     itemBuilder: (context, index) {
-                      return RequestCard(requestData: filteredRequests[index]);
+                      final request = filteredRequests[index];
+                      return GestureDetector(
+                        onTap: () => _navigateToRequestDetail(request),
+                        child: RequestCard(requestData: request),
+                      );
                     },
                   ),
           ),

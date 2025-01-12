@@ -1,6 +1,7 @@
 import 'package:ecogreen_city/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'dart:convert';
 
 import 'cart_screen.dart';
@@ -38,7 +39,7 @@ class _DetailStoreScreenState extends State<DetailStoreScreen> {
       }
 
       final response = await http.get(
-        Uri.parse('http://localhost:3000/api/products/store/$storeId'),
+        Uri.parse('http://192.168.1.4:3000/api/products/store/$storeId'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -165,11 +166,15 @@ class _DetailStoreScreenState extends State<DetailStoreScreen> {
                         ClipRRect(
                           borderRadius: BorderRadius.circular(15),
                           child: Image.network(
-                            // widget.store['image'] ??
                             'https://via.placeholder.com/150',
-                            width: double.infinity,
-                            height: 200,
                             fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return const Icon(
+                                Icons.store,
+                                size: 150,
+                                color: Colors.grey,
+                              );
+                            },
                           ),
                         ),
                         const SizedBox(height: 10),
@@ -221,11 +226,18 @@ class _DetailStoreScreenState extends State<DetailStoreScreen> {
                             ClipRRect(
                               borderRadius: BorderRadius.circular(10),
                               child: Image.network(
-                                // product['imageUrl'] ??
-                                'https://via.placeholder.com/150',
+                                product['image'] ??
+                                    'https://via.placeholder.com/150',
                                 width: 80,
                                 height: 80,
                                 fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return const Icon(
+                                    Icons.store,
+                                    size: 80,
+                                    color: Colors.grey,
+                                  );
+                                },
                               ),
                             ),
                             const SizedBox(width: 10),
@@ -252,7 +264,7 @@ class _DetailStoreScreenState extends State<DetailStoreScreen> {
                                   ),
                                   const SizedBox(height: 5),
                                   Text(
-                                    'Giá: ${product['price']}đ',
+                                    'Giá: ${_formatCurrency(product['price'])}',
                                     style: const TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.bold,
@@ -288,5 +300,15 @@ class _DetailStoreScreenState extends State<DetailStoreScreen> {
               ),
             ),
     );
+  }
+}
+
+String _formatCurrency(dynamic price) {
+  try {
+    final double parsedPrice = double.parse(price.toString());
+    return NumberFormat.currency(locale: 'vi_VN', symbol: 'VND')
+        .format(parsedPrice);
+  } catch (e) {
+    return '0VND'; // Trả về 0₫ nếu có lỗi
   }
 }

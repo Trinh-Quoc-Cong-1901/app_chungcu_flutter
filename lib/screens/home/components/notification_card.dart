@@ -57,10 +57,6 @@ class NotificationCardWidget extends StatelessWidget {
             ),
           ],
         ),
-
-        onTap: () {
-          // Xử lý khi người dùng nhấn vào thẻ
-        },
       ),
     );
   }
