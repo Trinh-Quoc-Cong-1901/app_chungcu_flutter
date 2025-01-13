@@ -55,8 +55,10 @@ class _FeedScreenState extends State<FeedScreen> {
   Future<void> _addComment(String postId, String content) async {
     try {
       await _dataService.addComment(postId, content);
+
       _fetchPosts(); // Cập nhật lại danh sách bài viết sau khi comment
     } catch (e) {
+      print('Lỗi xảy ra khi thêm bình luận: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Không thể thêm bình luận: $e')),
       );

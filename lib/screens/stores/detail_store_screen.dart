@@ -166,7 +166,8 @@ class _DetailStoreScreenState extends State<DetailStoreScreen> {
                         ClipRRect(
                           borderRadius: BorderRadius.circular(15),
                           child: Image.network(
-                            'https://via.placeholder.com/150',
+                            widget.store['image'] ??
+                                'https://via.placeholder.com/150',
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) {
                               return const Icon(
@@ -188,14 +189,14 @@ class _DetailStoreScreenState extends State<DetailStoreScreen> {
                         const SizedBox(height: 10),
                         Text(
                           widget.store['description'] ?? 'Không có mô tả',
-                          style:
-                              const TextStyle(fontSize: 16, color: Colors.grey),
+                          style: const TextStyle(
+                              fontSize: 16, color: Colors.black),
                         ),
                         const SizedBox(height: 10),
                         Text(
-                          widget.store['address'] ?? 'Không có địa chỉ',
-                          style:
-                              const TextStyle(fontSize: 14, color: Colors.grey),
+                          'Địa chỉ: ${widget.store['address'] ?? 'Không có địa chỉ'}',
+                          style: const TextStyle(
+                              fontSize: 14, color: Colors.black),
                         ),
                       ],
                     ),
@@ -226,7 +227,7 @@ class _DetailStoreScreenState extends State<DetailStoreScreen> {
                             ClipRRect(
                               borderRadius: BorderRadius.circular(10),
                               child: Image.network(
-                                product['image'] ??
+                                product['imageUrl'] ??
                                     'https://via.placeholder.com/150',
                                 width: 80,
                                 height: 80,

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:ecogreen_city/services/data_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -17,6 +18,7 @@ class _FeedDetailScreenState extends State<FeedDetailScreen> {
   final TextEditingController commentController = TextEditingController();
   String? userId;
   String? userName; // Thêm userName để hiển thị tên người dùng
+  final DataService _dataService = DataService();
 
   @override
   void initState() {
@@ -34,92 +36,18 @@ class _FeedDetailScreenState extends State<FeedDetailScreen> {
   }
 
   // Gửi bình luận mới lên API
-  Future<void> _addComment() async {
-    final content = commentController.text.trim();
-    if (content.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Vui lòng nhập nội dung bình luận')),
-      );
-      return;
-    }
-
+  Future<void> _addComment(String postId, String content) async {
     try {
-      // Gửi bình luận qua API
-      final response = await http.post(
-        Uri.parse(
-            'http://192.168.1.4:3000/api/posts/${widget.post['_id']}/comment'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'userId': userId,
-          'userName': userName,
-          'content': content,
-        }),
-      );
+      await _dataService.addComment(postId, content);
 
-      if (response.statusCode == 200) {
-        setState(() {
-          // Cập nhật cục bộ danh sách bình luận
-          widget.post['comments'].add({
-            'user': {'id': userId, 'name': userName},
-            'content': content,
-          });
-          commentController.clear();
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Bình luận thành công')),
-        );
-      } else {
-        throw Exception('Gửi bình luận thất bại');
-      }
+      // Cập nhật lại danh sách bài viết sau khi comment
     } catch (e) {
+      print('Lỗi xảy ra khi thêm bình luận: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Lỗi: $e')),
+        SnackBar(content: Text('Không thể thêm bình luận: $e')),
       );
     }
   }
-//   Future<void> _addComment() async {
-//   final content = commentController.text.trim();
-//   if (content.isEmpty) {
-//     ScaffoldMessenger.of(context).showSnackBar(
-//       const SnackBar(content: Text('Vui lòng nhập nội dung bình luận')),
-//     );
-//     return;
-//   }
-
-//   try {
-//     final response = await http.post(
-//       Uri.parse(
-//           'http://192.168.1.4:3000/api/posts/${widget.post['_id']}/comment'),
-//       headers: {'Content-Type': 'application/json'},
-//       body: jsonEncode({
-//         'userId': userId,
-//         'userName': userName,
-//         'content': content,
-//       }),
-//     );
-
-//     if (response.statusCode == 200) {
-//       setState(() {
-//         // Cập nhật cục bộ danh sách bình luận
-//         widget.post['comments'].add({
-//           'user': {'id': userId, 'name': userName},
-//           'content': content,
-//         });
-//         commentController.clear();
-//       });
-//       widget.onUpdatePost(widget.post); // Thông báo về thay đổi
-//       ScaffoldMessenger.of(context).showSnackBar(
-//         const SnackBar(content: Text('Bình luận thành công')),
-//       );
-//     } else {
-//       throw Exception('Gửi bình luận thất bại');
-//     }
-//   } catch (e) {
-//     ScaffoldMessenger.of(context).showSnackBar(
-//       SnackBar(content: Text('Lỗi: $e')),
-//     );
-//   }
-// }
 
   @override
   Widget build(BuildContext context) {
@@ -276,7 +204,20 @@ class _FeedDetailScreenState extends State<FeedDetailScreen> {
                 ),
                 IconButton(
                   icon: const Icon(Icons.send, color: Colors.green),
-                  onPressed: _addComment,
+                  onPressed: () async {
+                    if (commentController.text.trim().isNotEmpty) {
+                      await _addComment(
+                          widget.post['_id'], commentController.text);
+                      setState(() {
+                        commentController.clear(); // Xóa nội dung ô nhập
+                      });
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content: Text('Vui lòng nhập nội dung bình luận')),
+                      );
+                    }
+                  },
                 ),
               ],
             ),

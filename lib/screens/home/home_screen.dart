@@ -146,7 +146,7 @@ class _HomeScreenState extends State<HomeScreen> {
             CircleAvatar(
               radius: 20, // Kích thước avatar
               backgroundImage: AssetImage(
-                  'assets/images/avata.png'), // Thay thế bằng đường dẫn tới ảnh avatar của bạn
+                  'assets/images/icon_person.jpg'), // Thay thế bằng đường dẫn tới ảnh avatar của bạn
             ),
             SizedBox(width: 10), // Khoảng cách giữa avatar và thông tin
             Column(

@@ -117,7 +117,9 @@ class _NewFeedbackScreenState extends State<NewFeedbackScreen> {
       appBar: AppBar(
         title: const Text('Tạo phản hồi mới'),
       ),
-      body: Padding(
+      resizeToAvoidBottomInset:
+          true, // Đảm bảo giao diện tự động điều chỉnh khi bàn phím xuất hiện
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
@@ -220,7 +222,7 @@ class _NewFeedbackScreenState extends State<NewFeedbackScreen> {
                   ),
                 ],
               ),
-              const Spacer(),
+              const SizedBox(height: 16.0),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(

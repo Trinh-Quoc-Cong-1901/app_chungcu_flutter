@@ -82,9 +82,6 @@ class _NotificationListScreenState extends State<NotificationListScreen> {
         );
       } else if (type == 'order') {
         final orderData = await _dataService.getOrderDetails(relatedId);
-        if (orderData == null) {
-          throw Exception('Dữ liệu đơn hàng không tồn tại.');
-        }
 
         Navigator.push(
           context,

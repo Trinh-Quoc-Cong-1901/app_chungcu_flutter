@@ -122,6 +122,30 @@ class DataService {
     }
   }
 
+  Future<List<dynamic>> loadFeedDetail(feedID) async {
+    final token = await _authService.getAccessToken();
+    if (token == null) {
+      throw Exception('Token không tồn tại. Vui lòng đăng nhập lại.');
+    }
+
+    final response = await http.get(
+      Uri.parse('http://192.168.1.4:3000/api/posts/$feedID'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else if (response.statusCode == 401) {
+      await _authService.refreshToken();
+      return loadFeeds(); // Thử lại
+    } else {
+      throw Exception('Failed to load feeds');
+    }
+  }
+
   Future<List<dynamic>> loadBills() async {
     final token = await _authService.getAccessToken();
     if (token == null) {
@@ -181,8 +205,9 @@ class DataService {
       },
       body: jsonEncode({'content': content}),
     );
+    print(response.statusCode);
 
-    if (response.statusCode != 200) {
+    if (response.statusCode != 200 && response.statusCode != 201) {
       throw Exception('Failed to add comment');
     }
   }
@@ -323,7 +348,7 @@ class DataService {
     }
 
     final response = await http.get(
-      Uri.parse('http://localhost:3000/api/invoices/user/$invoiceId'),
+      Uri.parse('http://192.168.1.4:3000/api/invoices/user/$invoiceId'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
@@ -348,7 +373,7 @@ class DataService {
     }
 
     final response = await http.get(
-      Uri.parse('http://localhost:3000/api/orders/$orderId'),
+      Uri.parse('http://192.168.1.4:3000/api/orders/$orderId'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
@@ -368,7 +393,7 @@ class DataService {
 
   Future<Map<String, dynamic>> getRequestDetails(String feedbackId) async {
     final response = await http.get(
-      Uri.parse('http://localhost:3000/api/feedbacks/$feedbackId'),
+      Uri.parse('http://192.168.1.4:3000/api/feedbacks/$feedbackId'),
       headers: {
         'Content-Type': 'application/json',
       },

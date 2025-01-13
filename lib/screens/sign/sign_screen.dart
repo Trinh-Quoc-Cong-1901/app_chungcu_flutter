@@ -16,8 +16,10 @@ class SignInScreen extends StatefulWidget {
 }
 
 class _SignInScreenState extends State<SignInScreen> {
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _emailController =
+      TextEditingController(text: 'trinhquoccong@gmail.com');
+  final TextEditingController _passwordController =
+      TextEditingController(text: '123456');
   final AuthService _authService = AuthService();
 
   String? _errorText;
