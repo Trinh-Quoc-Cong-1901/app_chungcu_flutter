@@ -12,7 +12,7 @@ class DataService {
     }
 
     final response = await http.get(
-      Uri.parse('http://192.168.1.4:3000/api/notifications/'),
+      Uri.parse('http://192.168.1.9:3000/api/notifications/'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
@@ -37,7 +37,7 @@ class DataService {
 
     final response = await http.put(
       Uri.parse(
-          'http://192.168.1.4:3000/api/notifications/$notificationId/read'),
+          'http://192.168.1.9:3000/api/notifications/$notificationId/read'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
@@ -57,7 +57,7 @@ class DataService {
     }
 
     final response = await http.get(
-      Uri.parse('http://192.168.1.4:3000/api/feedbacks/'),
+      Uri.parse('http://192.168.1.9:3000/api/feedbacks/'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
@@ -81,7 +81,7 @@ class DataService {
     }
 
     final response = await http.get(
-      Uri.parse('http://192.168.1.4:3000/api/stores/'),
+      Uri.parse('http://192.168.1.9:3000/api/stores/'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
@@ -105,7 +105,7 @@ class DataService {
     }
 
     final response = await http.get(
-      Uri.parse('http://192.168.1.4:3000/api/posts/'),
+      Uri.parse('http://192.168.1.9:3000/api/posts/'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
@@ -129,7 +129,7 @@ class DataService {
     }
 
     final response = await http.get(
-      Uri.parse('http://192.168.1.4:3000/api/posts/$feedID'),
+      Uri.parse('http://192.168.1.9:3000/api/posts/$feedID'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
@@ -153,7 +153,7 @@ class DataService {
     }
 
     final response = await http.get(
-      Uri.parse('http://192.168.1.4:3000/api/invoices/user'),
+      Uri.parse('http://192.168.1.9:3000/api/invoices/user'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
@@ -178,7 +178,7 @@ class DataService {
     }
 
     final response = await http.post(
-      Uri.parse('http://192.168.1.4:3000/api/posts/$postId/like'),
+      Uri.parse('http://192.168.1.9:3000/api/posts/$postId/like'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
@@ -198,7 +198,7 @@ class DataService {
     }
 
     final response = await http.post(
-      Uri.parse('http://192.168.1.4:3000/api/posts/$postId/comment'),
+      Uri.parse('http://192.168.1.9:3000/api/posts/$postId/comment'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
@@ -220,7 +220,7 @@ class DataService {
     }
 
     final response = await http.get(
-      Uri.parse('http://192.168.1.4:3000/api/orders'),
+      Uri.parse('http://192.168.1.9:3000/api/orders'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
@@ -244,7 +244,7 @@ class DataService {
     if (userId == null) throw Exception('Không thể lấy thông tin userId.');
 
     final response = await http.get(
-      Uri.parse('http://192.168.1.4:3000/api/users/$userId'),
+      Uri.parse('http://192.168.1.9:3000/api/users/$userId'),
       headers: {'Content-Type': 'application/json'},
     );
 
@@ -263,7 +263,7 @@ class DataService {
       throw Exception('Không thể thêm thành viên, User ID không tồn tại.');
 
     final response = await http.post(
-      Uri.parse('http://192.168.1.4:3000/api/members/$userId'),
+      Uri.parse('http://192.168.1.9:3000/api/members/$userId'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({"name": name, "age": age, "relation": relation}),
     );
@@ -280,7 +280,7 @@ class DataService {
       throw Exception('Không thể xóa thành viên, User ID không tồn tại.');
 
     final response = await http.delete(
-      Uri.parse('http://192.168.1.4:3000/api/members/$userId/$memberId'),
+      Uri.parse('http://192.168.1.9:3000/api/members/$userId/$memberId'),
       headers: {'Content-Type': 'application/json'},
     );
 
@@ -296,7 +296,7 @@ class DataService {
     if (token == null) throw Exception('Token không tồn tại.');
 
     final response = await http.get(
-      Uri.parse('http://192.168.1.4:3000/api/chats/user'),
+      Uri.parse('http://192.168.1.9:3000/api/chats/user'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
@@ -328,7 +328,7 @@ class DataService {
     };
 
     final response = await http.post(
-      Uri.parse('http://192.168.1.4:3000/api/chats'),
+      Uri.parse('http://192.168.1.9:3000/api/chats'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
@@ -348,7 +348,7 @@ class DataService {
     }
 
     final response = await http.get(
-      Uri.parse('http://192.168.1.4:3000/api/invoices/user/$invoiceId'),
+      Uri.parse('http://192.168.1.9:3000/api/invoices/user/$invoiceId'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
@@ -373,7 +373,7 @@ class DataService {
     }
 
     final response = await http.get(
-      Uri.parse('http://192.168.1.4:3000/api/orders/$orderId'),
+      Uri.parse('http://192.168.1.9:3000/api/orders/$orderId'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
@@ -393,7 +393,7 @@ class DataService {
 
   Future<Map<String, dynamic>> getRequestDetails(String feedbackId) async {
     final response = await http.get(
-      Uri.parse('http://192.168.1.4:3000/api/feedbacks/$feedbackId'),
+      Uri.parse('http://192.168.1.9:3000/api/feedbacks/$feedbackId'),
       headers: {
         'Content-Type': 'application/json',
       },

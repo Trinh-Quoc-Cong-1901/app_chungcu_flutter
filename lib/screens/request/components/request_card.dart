@@ -120,6 +120,18 @@ class RequestCard extends StatelessWidget {
                     fontWeight: FontWeight.bold, color: Colors.black54),
               ),
             ),
+            if (requestData['status'] == 'In Progress' ||
+                requestData['status'] == 'Resolved') ...[
+              const SizedBox(height: 8),
+              const Divider(),
+              Text(
+                'Nhân viên xử lý:',
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              Text('Tên: ${requestData['assignedTo']['name']}'),
+              Text(
+                  'Số điện thoại: ${requestData['assignedTo']['phoneNumber']}'),
+            ],
           ],
         ),
       ),

@@ -75,7 +75,7 @@ class _NewFeedbackScreenState extends State<NewFeedbackScreen> {
 
       try {
         final response = await http.post(
-          Uri.parse('http://192.168.1.4:3000/api/feedbacks'),
+          Uri.parse('http://192.168.1.9:3000/api/feedbacks'),
           headers: {
             'Authorization': 'Bearer $_token',
             'Content-Type': 'application/json',

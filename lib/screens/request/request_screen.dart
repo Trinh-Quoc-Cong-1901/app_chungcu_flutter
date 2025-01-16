@@ -30,7 +30,7 @@ class _RequestScreenState extends State<RequestScreen> {
   Future<void> _fetchRequests() async {
     try {
       final response =
-          await http.get(Uri.parse('http://192.168.1.4:3000/api/feedbacks'));
+          await http.get(Uri.parse('http://192.168.1.9:3000/api/feedbacks'));
 
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);

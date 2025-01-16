@@ -39,7 +39,7 @@ class _DetailStoreScreenState extends State<DetailStoreScreen> {
       }
 
       final response = await http.get(
-        Uri.parse('http://192.168.1.4:3000/api/products/store/$storeId'),
+        Uri.parse('http://192.168.1.9:3000/api/products/store/$storeId'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',

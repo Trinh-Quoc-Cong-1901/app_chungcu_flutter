@@ -15,6 +15,7 @@ class _OrderScreenState extends State<OrderScreen> {
   late Future<List<dynamic>> _orders;
 
   List<dynamic> orderedOrders = [];
+  List<dynamic> shippingOrders = [];
   List<dynamic> deliveredOrders = [];
 
   @override
@@ -26,6 +27,8 @@ class _OrderScreenState extends State<OrderScreen> {
   void _categorizeOrders(List<dynamic> orders) {
     orderedOrders =
         orders.where((order) => order['status'] == 'ordered').toList();
+    shippingOrders =
+        orders.where((order) => order['status'] == 'shipping').toList();
     deliveredOrders =
         orders.where((order) => order['status'] == 'delivered').toList();
   }
@@ -47,7 +50,7 @@ class _OrderScreenState extends State<OrderScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Danh sách đơn hàng'),
+        title: const Text('Danh sách đơn hàng '),
         backgroundColor: Colors.teal,
       ),
       body: FutureBuilder<List<dynamic>>(
@@ -81,6 +84,23 @@ class _OrderScreenState extends State<OrderScreen> {
                     ),
                   ),
                   ...orderedOrders.map((order) => GestureDetector(
+                        onTap: () => _navigateToOrderDetail(order),
+                        child: _buildOrderCard(order),
+                      )),
+                ],
+                // Danh sách shipping
+                if (shippingOrders.isNotEmpty) ...[
+                  const Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Text(
+                      'Đơn hàng đang giao:',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  ...shippingOrders.map((order) => GestureDetector(
                         onTap: () => _navigateToOrderDetail(order),
                         child: _buildOrderCard(order),
                       )),

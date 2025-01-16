@@ -42,7 +42,7 @@ class _BillPaymentScreenState extends State<BillPaymentScreen> {
       if (token == null) throw Exception('Token không tồn tại.');
 
       final response = await http.patch(
-        Uri.parse('http://192.168.1.4:3000/api/invoices/user/$invoiceId'),
+        Uri.parse('http://192.168.4.241:3000/api/invoices/user/$invoiceId'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -66,7 +66,7 @@ class _BillPaymentScreenState extends State<BillPaymentScreen> {
       if (token == null) throw Exception('Token không tồn tại.');
 
       final response = await http.get(
-        Uri.parse('http://192.168.1.4:3000/api/invoices/user'),
+        Uri.parse('http://192.168.4.241:3000/api/invoices/user'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
