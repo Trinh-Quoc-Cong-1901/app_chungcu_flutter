@@ -21,43 +21,56 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     return NumberFormat.currency(locale: 'vi_VN', symbol: 'VND').format(amount);
   }
 
-  Future<void> _updateOrderStatus(
-      BuildContext context, String newStatus) async {
+  Future<void> _updateOrderStatus(BuildContext context) async {
+    final token = await _authService.getAccessToken();
+    if (token == null || token.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Bạn chưa đăng nhập.')),
+      );
+      return;
+    }
+
+    final url =
+        'http://192.168.1.9:3000/api/orders/user/${widget.orderData['_id']}';
+
+    String nextStatus;
+    if (widget.orderData['status'] == 'ordered') {
+      nextStatus = 'shipping';
+    } else if (widget.orderData['status'] == 'shipping') {
+      nextStatus = 'delivered';
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('Không thể cập nhật trạng thái đơn hàng.')),
+      );
+      return;
+    }
+
     try {
       setState(() {
         _isUpdating = true;
       });
 
-      final token = await _authService.getAccessToken();
-      if (token == null) {
-        throw Exception('Access token không tồn tại.');
-      }
-
-      final url =
-          'http://localhost:3000/api/orders/admin/${widget.orderData['_id']}'; // URL API
-
       final response = await http.put(
         Uri.parse(url),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token', // Đảm bảo định dạng đúng
+          'Authorization': 'Bearer $token',
         },
-        body: json.encode({'status': newStatus}),
+        body: json.encode({'status': nextStatus}),
       );
 
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-              content: Text(
-                  'Trạng thái đơn hàng đã được cập nhật thành $newStatus')),
+              content: Text('Đơn hàng đã được cập nhật thành "$nextStatus"!')),
         );
 
-        // Cập nhật trạng thái đơn hàng trong giao diện
         setState(() {
-          widget.orderData['status'] = newStatus;
+          widget.orderData['status'] = nextStatus;
         });
 
-        Navigator.pop(context); // Quay lại màn hình trước đó
+        Navigator.pop(context);
       } else {
         final error = json.decode(response.body);
         ScaffoldMessenger.of(context).showSnackBar(
@@ -176,7 +189,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                 onPressed: _isUpdating
                     ? null
                     : () async {
-                        await _updateOrderStatus(context, 'delivered');
+                        await _updateOrderStatus(context);
                       },
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.teal),
                 child: _isUpdating
